@@ -2,16 +2,16 @@
 
 ## Phase 1: Project Setup
 
-- [ ] Set up Python environment and install LangChain, ChromaDB, and other dependencies
-- [ ] Set up API key management for the LLM provider
-- [ ] Create the basic project folder structure
+- [x] Set up Python environment and install LangChain, ChromaDB, and other dependencies
+- [x] Set up API key management for the LLM provider
+- [x] Create the basic project folder structure
 
 ## Phase 2: Document Ingestion
 
-- [ ] Build a loader for PDF files
-- [ ] Build a loader for plain text or notes files
-- [ ] Build a loader for scanned reports, using OCR if needed
-- [ ] Test each loader with a sample document
+- [x] Build a loader for PDF files
+- [x] Build a loader for plain text or notes files
+- [x] Build a loader for scanned reports, using OCR if needed
+- [x] Test each loader with a sample document
 
 ## Phase 3: Chunking
 
