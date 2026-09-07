@@ -15,17 +15,17 @@
 
 ## Phase 3: Chunking
 
-- [ ] Implement a chunking function with configurable chunk size and overlap
-- [ ] Add logic to adjust chunk size based on document type
-- [ ] Test chunking output on each document type and check chunk boundaries make sense
+- [x] Implement a chunking function with configurable chunk size and overlap
+- [x] Add logic to adjust chunk size based on document type
+- [x] Test chunking output on each document type and check chunk boundaries make sense
 
 ## Phase 4: Embedding and Vector Store
 
-- [ ] Choose an embedding model
-- [ ] Compare two embedding models on the same document set and note differences in retrieval results
-- [ ] Generate embeddings for all chunks
-- [ ] Store embeddings and chunk metadata in ChromaDB
-- [ ] Test that stored chunks can be retrieved by similarity search
+- [x] Choose an embedding model
+- [x] Compare two embedding models on the same document set and note differences in retrieval results
+- [x] Generate embeddings for all chunks
+- [x] Store embeddings and chunk metadata in ChromaDB
+- [x] Test that stored chunks can be retrieved by similarity search
 
 ## Phase 5: Retrieval
 
