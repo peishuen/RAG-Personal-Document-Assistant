@@ -1,0 +1,25 @@
+# core rag framework
+langchain==0.3.25
+langchain-community==0.3.24
+
+# qwen llm and embeddings via dashscope
+dashscope==1.20.11
+
+# vector store
+chromadb==0.6.3
+
+# bm25 retrieval
+rank-bm25==0.2.2
+
+# pdf loading
+pypdf==4.3.1
+
+# ocr for scanned documents
+pytesseract==0.3.13
+Pillow==10.4.0
+
+# environment variable management
+python-dotenv==1.0.1
+
+# reranking
+sentence-transformers==3.0.1
