@@ -6,9 +6,19 @@ import chromadb
 # folder where chromadb saves its data on disk
 PERSIST_DIR = "data/chroma_db"
 
-def get_collection(name: str = "documents"): 
-    # connect to (or create) a local persistent chromadb client
-    client = chromadb.PersistentClient(path=PERSIST_DIR)
+# cache the client so it only opens once per process
+# opening a new client every call makes chromadb replay its unsaved write log each time, which is slow and noisy
+_client = None
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = chromadb.PersistentClient(path=PERSIST_DIR)
+    return _client
+
+def get_collection(name: str = "documents"):
+    # connect to (or create) a local persistent chromadb collection
+    client = get_client()
     collection = client.get_or_create_collection(
         name=name,
         metadata={"hnsw:space": "cosine"} # cosine distance
