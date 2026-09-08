@@ -29,15 +29,15 @@
 
 ## Phase 5: Retrieval
 
-- [ ] Implement BM25 retrieval over the chunk set
-- [ ] Implement semantic search retrieval using the vector store
-- [ ] Test both retrieval methods on a few sample questions and compare results manually
+- [x] Implement BM25 retrieval over the chunk set
+- [x] Implement semantic search retrieval using the vector store
+- [x] Test both retrieval methods on a few sample questions and compare results manually
 
 ## Phase 6: Hybrid Ranking and Reranking
 
-- [ ] Combine BM25 and semantic search results into a single ranked list
-- [ ] Add a reranking step on top of the combined results
-- [ ] Test hybrid ranking output against each individual method
+- [x] Combine BM25 and semantic search results into a single ranked list
+- [x] Add a reranking step on top of the combined results
+- [x] Test hybrid ranking output against each individual method
 
 ## Phase 7: Grounding and Generation
 
