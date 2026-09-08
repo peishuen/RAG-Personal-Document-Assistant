@@ -1,0 +1,61 @@
+<svg viewBox="0 0 1550 400" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6b7280" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1550" height="400" fill="#ffffff"/>
+
+  <text x="775" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">RAG Pipeline Workflow</text>
+
+  <!-- Stage 1: Ingest -->
+  <rect x="20" y="165" width="170" height="70" rx="10" fill="#eef4fb" stroke="#2563eb" stroke-width="2"/>
+  <text x="105" y="195" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">Ingest</text>
+  <text x="105" y="215" text-anchor="middle" font-size="12" fill="#374151">Documents</text>
+
+  <!-- Stage 2: Chunk -->
+  <rect x="230" y="165" width="170" height="70" rx="10" fill="#eef4fb" stroke="#2563eb" stroke-width="2"/>
+  <text x="315" y="195" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">Chunk</text>
+  <text x="315" y="215" text-anchor="middle" font-size="12" fill="#374151">Adaptive splitting</text>
+
+  <!-- Stage 3: Embed and Store -->
+  <rect x="440" y="165" width="170" height="70" rx="10" fill="#eef4fb" stroke="#2563eb" stroke-width="2"/>
+  <text x="525" y="195" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">Embed &amp; Store</text>
+  <text x="525" y="215" text-anchor="middle" font-size="12" fill="#374151">ChromaDB</text>
+
+  <!-- Stage 4a: BM25 -->
+  <rect x="650" y="60" width="170" height="70" rx="10" fill="#fef3e2" stroke="#d97706" stroke-width="2"/>
+  <text x="735" y="90" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">BM25</text>
+  <text x="735" y="110" text-anchor="middle" font-size="12" fill="#374151">Keyword retrieval</text>
+
+  <!-- Stage 4b: Semantic -->
+  <rect x="650" y="270" width="170" height="70" rx="10" fill="#eafaf1" stroke="#059669" stroke-width="2"/>
+  <text x="735" y="300" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">Semantic</text>
+  <text x="735" y="320" text-anchor="middle" font-size="12" fill="#374151">Embedding retrieval</text>
+
+  <!-- Stage 5: Hybrid Rank and Rerank -->
+  <rect x="880" y="165" width="170" height="70" rx="10" fill="#f3e8ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="965" y="192" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Hybrid Rank</text>
+  <text x="965" y="210" text-anchor="middle" font-size="12" fill="#374151">+ Rerank</text>
+
+  <!-- Stage 6: Ground and Generate -->
+  <rect x="1090" y="165" width="170" height="70" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+  <text x="1175" y="192" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Ground &amp; Generate</text>
+  <text x="1175" y="210" text-anchor="middle" font-size="12" fill="#374151">LLM + grounding check</text>
+
+  <!-- Stage 7: Cite -->
+  <rect x="1300" y="165" width="170" height="70" rx="10" fill="#fdf2f8" stroke="#be185d" stroke-width="2"/>
+  <text x="1385" y="192" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Cite Sources</text>
+  <text x="1385" y="210" text-anchor="middle" font-size="12" fill="#374151">Source reference</text>
+
+  <!-- Arrows -->
+  <line x1="190" y1="200" x2="228" y2="200" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="200" x2="438" y2="200" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="610" y1="200" x2="648" y2="95" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="610" y1="200" x2="648" y2="305" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="820" y1="95" x2="878" y2="190" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="820" y1="305" x2="878" y2="210" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="1050" y1="200" x2="1088" y2="200" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="1260" y1="200" x2="1298" y2="200" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+</svg>
