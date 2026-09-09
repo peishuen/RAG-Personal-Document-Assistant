@@ -41,9 +41,9 @@
 
 ## Phase 7: Grounding and Generation
 
-- [ ] Build the prompt template that passes retrieved chunks and the question to the LLM
-- [ ] Add a grounding check step that verifies the generated answer is supported by the retrieved chunks
-- [ ] Test generation on a few sample questions and check grounding works as expected
+- [x] Build the prompt template that passes retrieved chunks and the question to the LLM
+- [x] Add a grounding check step that verifies the generated answer is supported by the retrieved chunks
+- [x] Test generation on a few sample questions and check grounding works as expected
 
 ## Phase 8: Citation
 
