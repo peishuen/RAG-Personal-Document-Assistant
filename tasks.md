@@ -72,3 +72,9 @@
 - [ ] Add setup instructions once the actual codebase is finalized
 - [ ] Record a short demo or walkthrough for the interview
 - [ ] Clean up code comments and remove any leftover debug code
+
+## Phase 12: Frontend Demo and Deployment
+
+- [ ] Build a streamlit interface for uploading documents and asking questions
+- [ ] Show the generated answer with its grounding status and source citations
+- [ ] Deploy the app to streamlit community cloud for a shareable link
