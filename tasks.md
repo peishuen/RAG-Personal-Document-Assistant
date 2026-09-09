@@ -47,9 +47,9 @@
 
 ## Phase 8: Citation
 
-- [ ] Track which chunk and source document each retrieved piece of context came from
-- [ ] Add source citation to the final answer output
-- [ ] Test that citations point to the correct chunk and document
+- [x] Track which chunk and source document each retrieved piece of context came from
+- [x] Add source citation to the final answer output
+- [x] Test that citations point to the correct chunk and document
 
 ## Phase 9: Evaluation
 
@@ -70,7 +70,6 @@
 
 - [x] Write README with project overview, features, workflow diagram, and evaluation methodology
 - [ ] Add setup instructions once the actual codebase is finalized
-- [ ] Record a short demo or walkthrough for the interview
 - [ ] Clean up code comments and remove any leftover debug code
 
 ## Phase 12: Frontend Demo and Deployment
