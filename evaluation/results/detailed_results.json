@@ -1,0 +1,184 @@
+[
+  {
+    "question": "What is the title of the OPV2V paper?",
+    "expected_answer": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication",
+    "generated_answer": "The title of the OPV2V paper is \"OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication\" [Source 1].",
+    "similarity": 0.9817438804651212,
+    "correct": true
+  },
+  {
+    "question": "How many implemented models does OPV2V's benchmark include, and what fusion strategies are evaluated?",
+    "expected_answer": "16 implemented models, evaluating early, late, and intermediate fusion strategies.",
+    "generated_answer": "The OPV2V benchmark includes a total of 16 implemented models, which evaluate three information fusion strategies: early fusion, late fusion, and intermediate fusion [Source 1][Source 2][Source 3].",
+    "similarity": 0.7853829303833828,
+    "correct": true
+  },
+  {
+    "question": "How many cameras and what type of LiDAR does each CAV in OPV2V use?",
+    "expected_answer": "Each CAV uses 4 RGB cameras (800x600 resolution, 110 degree FOV) and 1 LiDAR with 64 channels, capturing 1.3 million points per second within a 120m range.",
+    "generated_answer": "Each CAV in OPV2V is equipped with 4 cameras and a 64-channel LiDAR [Source 1].",
+    "similarity": 0.7938548675320515,
+    "correct": true
+  },
+  {
+    "question": "What vehicle sensor setup was used to collect real-world data in Culver City?",
+    "expected_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was sent out to Culver City during rush hour to collect sensing data.",
+    "generated_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was used to collect real-world sensing data in Culver City [Source 1].",
+    "similarity": 0.9544654089850279,
+    "correct": true
+  },
+  {
+    "question": "How many frames, ground truth boxes, and total dataset size does OPV2V provide?",
+    "expected_answer": "OPV2V provides 11,464 frames, 232,913 ground truth 3D boxes, and 249.4GB of data across 9 cities.",
+    "generated_answer": "OPV2V provides 11,464 frames, 232,913 ground truth boxes (annotated 3D vehicle bounding boxes), and a total dataset size of 249.4GB [Source 2][Source 3].",
+    "similarity": 0.9367084326342295,
+    "correct": true
+  },
+  {
+    "question": "What are the six modules of the Attentive Intermediate Fusion pipeline?",
+    "expected_answer": "Metadata Sharing, Feature Extraction, Compression, Feature Sharing, Attentive Fusion, and Prediction Header.",
+    "generated_answer": "The six modules of the Attentive Intermediate Fusion pipeline are: Metadata Sharing, Feature Extraction, Compression, Feature sharing, Attentive Fusion, and Prediction (also referred to as Prediction Header) [Source 1] [Source 3].",
+    "similarity": 0.862502219800222,
+    "correct": true
+  },
+  {
+    "question": "According to Table IV, which fusion strategy generally achieves the best object detection performance?",
+    "expected_answer": "Intermediate fusion generally achieves the best performance across PIXOR, PointPillar, SECOND, and VoxelNet, except for PIXOR at Culver City.",
+    "generated_answer": "According to Table IV, intermediate fusion generally achieves the best object detection performance on both testing sets (except for PIXOR at Culver City) [Source 1][Source 4][Source 5].",
+    "similarity": 0.8412660447377959,
+    "correct": true
+  },
+  {
+    "question": "At a 4096x compression rate, how much does detection performance drop, and what is the message delivery time delay?",
+    "expected_answer": "Performance drops only marginally, around 3%, and the delivery delay at 4096x compression is only about 5ms.",
+    "generated_answer": "At a 4096x compression rate, the detection performance drops marginally (around 3%), and the message delivery time delay is only about 5 ms [Source 1].",
+    "similarity": 0.8357700898420698,
+    "correct": true
+  },
+  {
+    "question": "What does the paper conclude about the Attentive Intermediate Fusion pipeline compared to other fusion methods?",
+    "expected_answer": "It outperforms all other fusion methods and achieves state-of-the-art performance even under large compression rates.",
+    "generated_answer": "The experiments show that the proposed Attentive Intermediate Fusion pipeline can outperform all other fusion methods and achieve state-of-the-art performance, even under large compression rates. [Source 1]",
+    "similarity": 0.8345720727728426,
+    "correct": true
+  },
+  {
+    "question": "What is cooperative perception, according to the summary?",
+    "expected_answer": "Cooperative perception refers to the real-time sharing and fusion of sensor data among multiple road actors, such as vehicles, infrastructure units and other connected devices, to overcome the inherent limitations of individual sensing systems.",
+    "generated_answer": "Cooperative perception is the collective sensing approach in which multiple road agents share and fuse sensor data to improve situational awareness [Source 2]. It involves the real-time sharing and fusion of sensor data among multiple road actors—vehicles, infrastructure units and other connected devices—to overcome the inherent limitations of individual sensing systems [Source 1].",
+    "similarity": 0.9646028319668857,
+    "correct": true
+  },
+  {
+    "question": "What three network architectures does cooperative perception span, and what low-latency protocols do they rely on?",
+    "expected_answer": "V2V, V2I, and hybrid networks, relying on low-latency protocols such as 5G and dedicated short-range communications.",
+    "generated_answer": "Cooperative perception spans vehicle-to-vehicle (V2V), vehicle-to-infrastructure (V2I), and hybrid networks, relying on low-latency protocols such as 5G and dedicated short-range communications [Source 1].",
+    "similarity": 0.8330353153655345,
+    "correct": true
+  },
+  {
+    "question": "Why are data compression, synchronisation, and security mechanisms important in cooperative perception systems?",
+    "expected_answer": "They are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection.",
+    "generated_answer": "Data compression, synchronisation, and security mechanisms are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection. [Source 1]",
+    "similarity": 0.8277562586422065,
+    "correct": true
+  },
+  {
+    "question": "What is HYDRO-3D and what does it integrate?",
+    "expected_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception that integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps.",
+    "generated_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception. It integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps [Source 1].",
+    "similarity": 0.9965553581550606,
+    "correct": true
+  },
+  {
+    "question": "What is CoPnP and what results does it report?",
+    "expected_answer": "CoPnP is a collaborative joint perception and prediction system using CAVs and RSUs, reporting double-digit gains in intersection-over-union and video panoptic quality.",
+    "generated_answer": "CoPnP is a collaborative joint perception and prediction system that exploits multi-frame spatial-temporal information from both CAVs and RSUs. It uses a task-oriented feature refinement model and an importance-aware fusion module to filter redundant data and fuse complementary perspectives efficiently. Experiments report double-digit gains in intersection-over-union and video panoptic quality, extending collaboration benefits to short-term trajectory forecasting [Source 1].",
+    "similarity": 0.9187090347713432,
+    "correct": true
+  },
+  {
+    "question": "What technique does HP3D-V2V use to denoise point clouds?",
+    "expected_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds.",
+    "generated_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds [Source 1].",
+    "similarity": 0.9970494045889342,
+    "correct": true
+  },
+  {
+    "question": "What does Bird's-Eye-View (BEV) mean in the context of cooperative perception?",
+    "expected_answer": "A top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving.",
+    "generated_answer": "Bird's-Eye-View (BEV) is a top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving [Source 2].",
+    "similarity": 0.8606568516690976,
+    "correct": true
+  },
+  {
+    "question": "What are the three collaboration levels at which agents can share information in cooperative perception?",
+    "expected_answer": "Raw sensor data, intermediate feature maps, or processed object-level information like coordinates and velocities.",
+    "generated_answer": "The three collaboration levels at which agents can share information in cooperative perception are raw sensor data, intermediate feature maps, and processed object-level information (such as coordinates and velocities) [Source 1].",
+    "similarity": 0.7491125661737299,
+    "correct": false
+  },
+  {
+    "question": "What is the title of this project's presentation, and who presented it?",
+    "expected_answer": "Optimizing Cooperative Perception in Autonomous Vehicle through Semantic Data Analytics, presented by Li Xian Ng, Jia Xuan Goh, and Pei Shuen Ooi under MDS 17.",
+    "generated_answer": "I don't know.",
+    "similarity": 0.23417993865126824,
+    "correct": false
+  },
+  {
+    "question": "What problem does this project's overview slide identify about individual vehicles?",
+    "expected_answer": "Every vehicle sees through one pair of eyes, roads are shared but blind spots are not, and objects like trucks or buildings constantly hide things from view.",
+    "generated_answer": "The project's overview slide identifies that individual vehicles have limited perception due to blind spots and occlusions from objects like trucks and buildings, which hide other road users constantly [Source 1]. It highlights the problem that \"every vehicle sees through one pair of eyes\" and roads are shared but blind spots are not, suggesting a need for cooperative information sharing among vehicles [Source 1].",
+    "similarity": 0.7904186051590513,
+    "correct": true
+  },
+  {
+    "question": "What is explicitly listed as out of scope for this project?",
+    "expected_answer": "Latency performance and real-time video streaming.",
+    "generated_answer": "Based on the provided context, the items explicitly listed as out of scope for this project are \"Cooperative perception literature\" and \"When · What · How littleResearch\" [Source 1].",
+    "similarity": 0.22574163115615883,
+    "correct": false
+  },
+  {
+    "question": "What are the three use cases presented for this project?",
+    "expected_answer": "Occluded detection, blind intersection, and emergency vehicle.",
+    "generated_answer": "The three use cases presented for this project are blind intersection, occluded detection, and emergency vehicle [Source 1].",
+    "similarity": 0.829263826531836,
+    "correct": true
+  },
+  {
+    "question": "How does the RSU help an autonomous vehicle react to high occlusion, and how does it reduce communication cost?",
+    "expected_answer": "The RSU reveals a hidden car so the AV stops in time when occlusion blocks its view, and it only activates when needed, making it scalable for real-world deployment.",
+    "generated_answer": "The RSU helps an autonomous vehicle react to high occlusion by revealing hidden cars so the vehicle can stop in time [Source 1]. It reduces communication cost because the RSU only activates when needed, making the system scalable for real-world deployment [Source 1].",
+    "similarity": 0.8547431312486199,
+    "correct": true
+  },
+  {
+    "question": "In the system architecture, what happens when the ego vehicle's detection confidence is 0.30 or below?",
+    "expected_answer": "The RSU is activated, and the RSU Pi, also running YOLOv8n, sends its detection result via JSON file transfer for fusion.",
+    "generated_answer": "I don't know.",
+    "similarity": 0.27633862680887966,
+    "correct": false
+  },
+  {
+    "question": "What is the minimum viable JPEG quality for reliable object detection, and how much smaller is the transmission compared to full quality?",
+    "expected_answer": "Q=30 is the minimum viable quality, giving 94% smaller transmission size compared to full quality.",
+    "generated_answer": "I don't know.",
+    "similarity": 0.22964743861915615,
+    "correct": false
+  },
+  {
+    "question": "How much less data is transmitted when the RSU sends semantic detection results instead of raw images?",
+    "expected_answer": "Up to 99.9% less data transmitted, from a 192.55 KB raw image down to a 0.0645 KB semantic-only payload.",
+    "generated_answer": "Up to 99.9% less data is transmitted when the RSU sends semantic detection results instead of raw images [Source 1].",
+    "similarity": 0.7634343109031849,
+    "correct": true
+  },
+  {
+    "question": "What two deficiencies does the project identify?",
+    "expected_answer": "Bounding Box Drift, where hidden vehicle positions are estimated and drift increases from the anchor, and Fixed Confidence Threshold, where the threshold is not adaptive to different environments.",
+    "generated_answer": "The project identifies two deficiencies: \"Bounding Box Drift\" and \"Fixed Confidence Threshold\" [Source 1].",
+    "similarity": 0.8131878285901889,
+    "correct": true
+  }
+]

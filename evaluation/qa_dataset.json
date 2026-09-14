@@ -1,0 +1,158 @@
+[
+  {
+    "question": "What is the title of the OPV2V paper?",
+    "expected_answer": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p1_c0"]
+  },
+  {
+    "question": "How many implemented models does OPV2V's benchmark include, and what fusion strategies are evaluated?",
+    "expected_answer": "16 implemented models, evaluating early, late, and intermediate fusion strategies.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p1_c1"]
+  },
+  {
+    "question": "How many cameras and what type of LiDAR does each CAV in OPV2V use?",
+    "expected_answer": "Each CAV uses 4 RGB cameras (800x600 resolution, 110 degree FOV) and 1 LiDAR with 64 channels, capturing 1.3 million points per second within a 120m range.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p2_c1"]
+  },
+  {
+    "question": "What vehicle sensor setup was used to collect real-world data in Culver City?",
+    "expected_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was sent out to Culver City during rush hour to collect sensing data.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p3_c3"]
+  },
+  {
+    "question": "How many frames, ground truth boxes, and total dataset size does OPV2V provide?",
+    "expected_answer": "OPV2V provides 11,464 frames, 232,913 ground truth 3D boxes, and 249.4GB of data across 9 cities.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p4_c0"]
+  },
+  {
+    "question": "What are the six modules of the Attentive Intermediate Fusion pipeline?",
+    "expected_answer": "Metadata Sharing, Feature Extraction, Compression, Feature Sharing, Attentive Fusion, and Prediction Header.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p5_c0"]
+  },
+  {
+    "question": "According to Table IV, which fusion strategy generally achieves the best object detection performance?",
+    "expected_answer": "Intermediate fusion generally achieves the best performance across PIXOR, PointPillar, SECOND, and VoxelNet, except for PIXOR at Culver City.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p6_c0"]
+  },
+  {
+    "question": "At a 4096x compression rate, how much does detection performance drop, and what is the message delivery time delay?",
+    "expected_answer": "Performance drops only marginally, around 3%, and the delivery delay at 4096x compression is only about 5ms.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p7_c1"]
+  },
+  {
+    "question": "What does the paper conclude about the Attentive Intermediate Fusion pipeline compared to other fusion methods?",
+    "expected_answer": "It outperforms all other fusion methods and achieves state-of-the-art performance even under large compression rates.",
+    "source_document": "data/sample_docs/OPV2V.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p7_c2"]
+  },
+  {
+    "question": "What is cooperative perception, according to the summary?",
+    "expected_answer": "Cooperative perception refers to the real-time sharing and fusion of sensor data among multiple road actors, such as vehicles, infrastructure units and other connected devices, to overcome the inherent limitations of individual sensing systems.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c1"]
+  },
+  {
+    "question": "What three network architectures does cooperative perception span, and what low-latency protocols do they rely on?",
+    "expected_answer": "V2V, V2I, and hybrid networks, relying on low-latency protocols such as 5G and dedicated short-range communications.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c1"]
+  },
+  {
+    "question": "Why are data compression, synchronisation, and security mechanisms important in cooperative perception systems?",
+    "expected_answer": "They are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c2"]
+  },
+  {
+    "question": "What is HYDRO-3D and what does it integrate?",
+    "expected_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception that integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c3"]
+  },
+  {
+    "question": "What is CoPnP and what results does it report?",
+    "expected_answer": "CoPnP is a collaborative joint perception and prediction system using CAVs and RSUs, reporting double-digit gains in intersection-over-union and video panoptic quality.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c4"]
+  },
+  {
+    "question": "What technique does HP3D-V2V use to denoise point clouds?",
+    "expected_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c5"]
+  },
+  {
+    "question": "What does Bird's-Eye-View (BEV) mean in the context of cooperative perception?",
+    "expected_answer": "A top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c6"]
+  },
+  {
+    "question": "What are the three collaboration levels at which agents can share information in cooperative perception?",
+    "expected_answer": "Raw sensor data, intermediate feature maps, or processed object-level information like coordinates and velocities.",
+    "source_document": "data/sample_docs/Coop-Percep.txt",
+    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c7"]
+  },
+  {
+    "question": "What is the title of this project's presentation, and who presented it?",
+    "expected_answer": "Optimizing Cooperative Perception in Autonomous Vehicle through Semantic Data Analytics, presented by Li Xian Ng, Jia Xuan Goh, and Pei Shuen Ooi under MDS 17.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p1_c0"]
+  },
+  {
+    "question": "What problem does this project's overview slide identify about individual vehicles?",
+    "expected_answer": "Every vehicle sees through one pair of eyes, roads are shared but blind spots are not, and objects like trucks or buildings constantly hide things from view.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p2_c0"]
+  },
+  {
+    "question": "What is explicitly listed as out of scope for this project?",
+    "expected_answer": "Latency performance and real-time video streaming.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p4_c1"]
+  },
+  {
+    "question": "What are the three use cases presented for this project?",
+    "expected_answer": "Occluded detection, blind intersection, and emergency vehicle.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p5_c0"]
+  },
+  {
+    "question": "How does the RSU help an autonomous vehicle react to high occlusion, and how does it reduce communication cost?",
+    "expected_answer": "The RSU reveals a hidden car so the AV stops in time when occlusion blocks its view, and it only activates when needed, making it scalable for real-world deployment.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p27_c0"]
+  },
+  {
+    "question": "In the system architecture, what happens when the ego vehicle's detection confidence is 0.30 or below?",
+    "expected_answer": "The RSU is activated, and the RSU Pi, also running YOLOv8n, sends its detection result via JSON file transfer for fusion.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p29_c0"]
+  },
+  {
+    "question": "What is the minimum viable JPEG quality for reliable object detection, and how much smaller is the transmission compared to full quality?",
+    "expected_answer": "Q=30 is the minimum viable quality, giving 94% smaller transmission size compared to full quality.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p30_c0"]
+  },
+  {
+    "question": "How much less data is transmitted when the RSU sends semantic detection results instead of raw images?",
+    "expected_answer": "Up to 99.9% less data transmitted, from a 192.55 KB raw image down to a 0.0645 KB semantic-only payload.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p31_c0"]
+  },
+  {
+    "question": "What two deficiencies does the project identify?",
+    "expected_answer": "Bounding Box Drift, where hidden vehicle positions are estimated and drift increases from the anchor, and Fixed Confidence Threshold, where the threshold is not adaptive to different environments.",
+    "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
+    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p32_c0"]
+  }
+]

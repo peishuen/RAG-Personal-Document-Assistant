@@ -10,8 +10,9 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
     dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
     dashscope.base_http_api_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
 
+    # qwen-plus's free quota is exhausted on this account, qwen-plus-character still has quota and works the same for plain q&a
     llm = ChatTongyi(
-        model_name="qwen-plus"
+        model_name="qwen-plus-character"
     )
     prompt = build_prompt(query, chunks)
 

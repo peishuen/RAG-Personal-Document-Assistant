@@ -53,12 +53,12 @@
 
 ## Phase 9: Evaluation
 
-- [ ] Select 3 to 5 documents to use for the labeled evaluation set
-- [ ] Write 8 to 10 question and answer pairs per document
-- [ ] Mark the ground truth chunk or chunks for each question
-- [ ] Calculate Precision@K and Recall@K for BM25, semantic search, and hybrid ranking
-- [ ] Check answer correctness separately from retrieval accuracy
-- [ ] Summarize evaluation results in a short table or report
+- [x] Select 3 to 5 documents to use for the labeled evaluation set
+- [x] Write 8 to 10 question and answer pairs per document
+- [x] Mark the ground truth chunk or chunks for each question
+- [x] Calculate Precision@K and Recall@K for BM25, semantic search, and hybrid ranking
+- [x] Check answer correctness separately from retrieval accuracy
+- [x] Summarize evaluation results in a short table or report
 
 ## Phase 10: Batch Upload and Cross-document Q&A
 
