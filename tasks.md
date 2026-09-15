@@ -62,9 +62,9 @@
 
 ## Phase 10: Batch Upload and Cross-document Q&A
 
-- [ ] Add support for uploading multiple documents at once
-- [ ] Update retrieval and ranking logic to search across all uploaded documents
-- [ ] Test a question that requires pulling information from more than one document
+- [x] Add support for uploading multiple documents at once
+- [x] Update retrieval and ranking logic to search across all uploaded documents
+- [x] Test a question that requires pulling information from more than one document
 
 ## Phase 11: Documentation and Polish
 
