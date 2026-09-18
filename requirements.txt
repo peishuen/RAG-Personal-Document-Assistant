@@ -19,6 +19,9 @@ pypdf==4.3.1
 pytesseract==0.3.13
 Pillow==10.4.0
 
+# local embedding model, used to compare against dashscope's embeddings
+langchain-huggingface==0.3.1
+
 # environment variable management
 python-dotenv==1.0.1
 
