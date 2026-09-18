@@ -7,6 +7,7 @@ from src.embeddings.embedder import get_dashscope_embedder
 # below this similarity, the answer is treated as not clearly grounded in the retrieved chunks
 GROUNDING_THRESHOLD = 0.5
 
+# measure how close two vectors point in the same direction, 1 means identical and 0 means unrelated
 def cosine_similarity(vec_a, vec_b):
     vec_a, vec_b = np.array(vec_a), np.array(vec_b)
     return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))

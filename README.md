@@ -2,6 +2,8 @@
 
 A retrieval-augmented generation system that lets a user upload their own documents and ask questions about them in plain language. Instead of scrolling through a PDF or a set of notes, the user gets a direct answer with the exact source cited.
 
+**Live demo:** [peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/)
+
 ## Overview
 
 This project demonstrates a full RAG pipeline built with LangChain and ChromaDB. It is designed to handle multiple document formats, compare retrieval methods, and reduce hallucination by grounding every answer in the retrieved source text.
@@ -27,28 +29,32 @@ The project is intentionally domain agnostic. The same pipeline works whether th
 | LangChain | Orchestrates the retrieval and generation pipeline |
 | ChromaDB | Local vector store for embedding storage and similarity search |
 | BM25 | Sparse keyword based retrieval, used for comparison against semantic search |
-| Embedding model | Converts document chunks and queries into vectors for semantic search |
-| OCR (e.g. Tesseract) | Extracts text from scanned reports before chunking, used only when the uploaded document has no selectable text |
-| LLM | Generates the final answer from the retrieved context |
+| Qwen embeddings (DashScope) | Converts document chunks and queries into vectors for semantic search, via Alibaba's DashScope API |
+| OCR (Tesseract) | Extracts text from scanned reports before chunking, used only when the uploaded document has no selectable text |
+| Qwen LLM (DashScope) | Generates the final answer from the retrieved context, via LangChain's ChatTongyi wrapper |
 
 ## Project Structure
 
 ```
-personal-document-assistant/
+RAG-Personal-Document-Assistant/
 ├── README.md
 ├── tasks.md
 ├── requirements.txt
-├── .env.example
-├── app.py
+├── runtime.txt                   # pins the Python version used on Streamlit Community Cloud
+├── .env                          # local only, holds DASHSCOPE_API_KEY and friends, never committed
+├── app.py                        # streamlit entry point, run with `streamlit run app.py`
 │
 ├── data/
-│   └── sample_docs/              # PDF, notes, and scanned reports for testing
+│   ├── sample_docs/               # pdf, text, and scanned report samples used for testing
+│   ├── uploads/                   # documents uploaded through the streamlit app
+│   └── chroma_db/                 # chromadb's persistent local store
 │
 ├── src/
 │   ├── ingestion/
 │   │   ├── pdf_loader.py
 │   │   ├── text_loader.py
-│   │   └── ocr_loader.py
+│   │   ├── ocr_loader.py
+│   │   └── batch_loader.py        # picks the right loader by file extension, loads multiple files at once
 │   │
 │   ├── chunking/
 │   │   └── chunker.py
@@ -63,7 +69,7 @@ personal-document-assistant/
 │   │   ├── bm25_retriever.py
 │   │   ├── semantic_retriever.py
 │   │   ├── hybrid_ranker.py
-│   │   └── cross_document.py     # merges retrieval results across multiple uploaded documents
+│   │   └── cross_document.py      # merges retrieval results across multiple uploaded documents
 │   │
 │   ├── generation/
 │   │   ├── prompt_templates.py
@@ -75,19 +81,19 @@ personal-document-assistant/
 │
 ├── evaluation/
 │   ├── qa_dataset.json           # labeled question and answer pairs, with ground truth chunks
-│   ├── run_evaluation.py
+│   ├── evaluation.py             # computes precision@k, recall@k, and answer correctness
 │   ├── embedding_comparison.py   # compares two embedding models on the same document set
 │   └── results/
 │       ├── evaluation_report.md
-│       └── embedding_comparison_report.md
+│       └── detailed_results.json # per-question retrieval and generation results
 │
 ├── assets/
 │   └── workflow-diagram.svg
 │
-└── tests/
-    ├── test_chunking.py
-    ├── test_retrieval.py
-    └── test_generation.py
+└── testing/
+    ├── ingest_sample_docs.py     # loads, chunks, embeds and stores the sample docs into chromadb
+    ├── test_embedding_comparison.py
+    └── test_phase1.py ... test_phase10.py   # one script per phase, run manually during development
 ```
 
 ## Workflow
@@ -123,20 +129,36 @@ Using this labeled set, three things are measured:
 
 ## Setup
 
+The easiest way to try this project is the live demo linked above, no setup needed. To run it locally instead:
+
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd personal-document-assistant
+# clone the repository
+git clone https://github.com/peishuen/RAG-Personal-Document-Assistant.git
+cd RAG-Personal-Document-Assistant
 
-# Install dependencies
+# create and activate a python 3.11 environment (conda shown, venv works too)
+conda create -n rag-env python=3.11
+conda activate rag-env
+
+# install dependencies
 pip install -r requirements.txt
-
-# Set your API key
-export OPENAI_API_KEY=your-key-here
-
-# Run the app
-python app.py
 ```
+
+Create a `.env` file in the project root with your DashScope credentials (this project uses Qwen models through Alibaba's DashScope API, not OpenAI):
+
+```
+DASHSCOPE_API_KEY=your-key-here
+DASHSCOPE_API_REGION=int
+DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
+```
+
+Then run the app:
+
+```bash
+streamlit run app.py
+```
+
+This opens the app at `http://localhost:8501`. The repo already ships with the three sample documents pre-embedded in `data/chroma_db`, so you can start asking questions right away without uploading anything first.
 
 ## Usage
 

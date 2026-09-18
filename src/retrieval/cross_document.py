@@ -1,4 +1,4 @@
-# search across every uplaoded document and make sure results are not dominated by just one of them
+# search across every uploaded document and make sure results are not dominated by just one of them
 # useful for questions that need facts pulled from more than one document at once
 
 from src.retrieval.hybrid_ranker import hybrid_search

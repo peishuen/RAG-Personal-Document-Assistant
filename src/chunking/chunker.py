@@ -17,6 +17,7 @@ CHUNK_SETTINGS = {
 # this keeps chunks from cutting off mid-sentence whenever possible
 SEPARATORS = ["\n\n", "\n", ". ", "! ", "? ", " " ""]
 
+# turn each page's raw text into a list of chunk dicts, keeping the page metadata on every chunk
 def chunk_pages(pages: list[dict]) -> list[dict]:
     chunks = []
 

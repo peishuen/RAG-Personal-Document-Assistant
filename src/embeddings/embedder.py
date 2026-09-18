@@ -6,7 +6,7 @@ from langchain_community.embeddings import DashScopeEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 
 def get_dashscope_embedder():
-    # point dashscope at the internation endpoint
+    # point dashscope at the international endpoint
     dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
     dashscope.base_http_api_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
 

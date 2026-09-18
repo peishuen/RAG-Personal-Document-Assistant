@@ -25,6 +25,7 @@ def get_collection(name: str = "documents"):
     )
     return collection
 
+# embed and metadata already attached to each chunk, just write them into the collection
 def store_chunks(chunks: list[dict], collection_name: str = "documents"):
     collection = get_collection(collection_name)
 

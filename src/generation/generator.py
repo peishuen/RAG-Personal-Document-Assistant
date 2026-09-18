@@ -5,6 +5,7 @@ import dashscope
 from langchain_community.chat_models import ChatTongyi
 from src.generation.prompt_templates import build_prompt
 
+# build the grounded prompt and send it to the llm, then return just the answer text
 def generate_answer(query: str, chunks: list[dict]) -> str:
     # point dashscope at the same endpoint used for embeddings
     dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")

@@ -45,7 +45,7 @@ if uploaded_files:
         # normalize to forward slashes so paths stay consistent with the sample doc paths used in testing/ingest_sample_docs.py
         file_path = os.path.join(UPLOAD_DIR, uploaded_file.name).replace(os.sep, "/")
 
-        # save the upload to disk so the existing laoders can read it by file path
+        # save the upload to disk so the existing loaders can read it by file path
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
@@ -68,7 +68,7 @@ if uploaded_files:
 if get_collection().count() > 0:
     question = st.text_input("Ask a question about your uploaded documents")
 
-    # search across every stored ducoment, then generate an answer from retrievd chunks
+    # search across every stored document, then generate an answer from retrieved chunks
     if st.button("Ask") and question:
         with st.spinner("searching and generating answer..."):
             chunks = cross_document_search(question, top_k=5)

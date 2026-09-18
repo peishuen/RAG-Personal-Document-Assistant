@@ -17,6 +17,7 @@ def extract_cited_chunks(answer: str, chunks: list[dict]) -> list[dict]:
     # convert citation numbers back to chunk indexes
     return [chunks[n-1] for n in cited_numbers if 0 < n <= len(chunks)]
 
+# turn cited chunks into a readable list of source, page and chunk index
 def format_citations(chunks: list[dict]) -> str:
     # list each cited chunk's source, page and chunk index, so chunks on the same page don't look identical
     lines = [
@@ -25,6 +26,7 @@ def format_citations(chunks: list[dict]) -> str:
     ]
     return "\n".join(lines)
 
+# combine the answer with its extracted citations into one result dict
 def build_cited_answer(answer: str, chunks: list[dict]) -> dict:
     cited_chunks = extract_cited_chunks(answer, chunks)
     return {

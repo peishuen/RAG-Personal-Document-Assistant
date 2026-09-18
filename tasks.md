@@ -69,11 +69,11 @@
 ## Phase 11: Documentation and Polish
 
 - [x] Write README with project overview, features, workflow diagram, and evaluation methodology
-- [ ] Add setup instructions once the actual codebase is finalized
-- [ ] Clean up code comments and remove any leftover debug code
+- [x] Add setup instructions once the actual codebase is finalized
+- [x] Clean up code comments and remove any leftover debug code
 
 ## Phase 12: Frontend Demo and Deployment
 
 - [x] Build a streamlit interface for uploading documents and asking questions
 - [x] Show the generated answer with its grounding status and source citations
-- [ ] Deploy the app to streamlit community cloud for a shareable link
+- [x] Deploy the app to streamlit community cloud for a shareable link
