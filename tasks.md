@@ -74,6 +74,6 @@
 
 ## Phase 12: Frontend Demo and Deployment
 
-- [ ] Build a streamlit interface for uploading documents and asking questions
-- [ ] Show the generated answer with its grounding status and source citations
+- [x] Build a streamlit interface for uploading documents and asking questions
+- [x] Show the generated answer with its grounding status and source citations
 - [ ] Deploy the app to streamlit community cloud for a shareable link

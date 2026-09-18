@@ -24,3 +24,6 @@ python-dotenv==1.0.1
 
 # reranking
 sentence-transformers==3.0.1
+
+# web ui for the demo app
+streamlit == 1.38.0
