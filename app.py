@@ -14,6 +14,7 @@ from src.chunking.chunker import chunk_pages
 from src.embeddings.embedder import generate_embeddings
 from src.vectorstore.chroma_store import store_chunks, get_collection
 from src.retrieval.cross_document import cross_document_search
+from src.generation.query_rewriter import rewrite_query
 from src.generation.generator import generate_answer
 from src.generation.grounding_check import check_grounding
 from src.citation.citation_tracker import build_cited_answer
@@ -30,6 +31,10 @@ st.title("Personal Document Assistant")
 st.write("Upload documents, then ask a question about their content.")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# keep a running list of prior turns in session state so they survive a streamlit rerun
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
 # accept one or more pdf or text files at once, matches the batch upload support in batch_loader
 uploaded_files = st.file_uploader(
@@ -71,8 +76,11 @@ if get_collection().count() > 0:
     # search across every stored document, then generate an answer from retrieved chunks
     if st.button("Ask") and question:
         with st.spinner("searching and generating answer..."):
-            chunks = cross_document_search(question, top_k=5)
-            answer = generate_answer(question, chunks)
+            # resolve follow-ups like "what about its accuracy" into a standalone query before retrieval
+            standalone_query = rewrite_query(question, st.session_state.chat_history)
+
+            chunks = cross_document_search(standalone_query, top_k=5)
+            answer = generate_answer(standalone_query, chunks, st.session_state.chat_history)
 
             # check the answer is actually backed by the retrieved chunks before showing it as trustworthy
             grounding = check_grounding(answer, chunks)
@@ -80,15 +88,28 @@ if get_collection().count() > 0:
             # figure out which chunks the answer cites and format them as a source list
             cited = build_cited_answer(answer, chunks)
 
-        st.write(cited["answer"])
+            # save this turn so it stays available for the rest of the session
+            st.session_state.chat_history.append({
+                "question": question,
+                "answer": cited["answer"],
+                "grounded": grounding["grounded"],
+                "best_score": grounding["best_score"],
+                "citations": cited["citations"]
+            })
 
-        # show a clear pass or fail badge based on the grounding check, plus the match score behind it
-        if grounding["grounded"]:
-            st.success(f"grounded (best match score {grounding['best_score']:.2f})")
+    # loop through every past turn, oldest first, so the thread always renders regardless of button state
+    for turn in st.session_state.chat_history:
+        st.markdown(f"**You:** {turn['question']}")
+        st.write(turn["answer"])
+
+        # check this turn's own grounding result
+        if turn["grounded"]:
+            st.success(f"grounded (best match score {turn['best_score']:.2f})")
         else:
-            st.warning(f"not clearly grounded (best match score {grounding['best_score']:.2f}), answer may be unreliable")
+            st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
 
         st.markdown("**Sources**")
-        st.markdown(cited["citations"])
+        st.markdown(turn["citations"])
+        st.divider()
 else:
     st.info("upload and store at least one document before asking a question")
