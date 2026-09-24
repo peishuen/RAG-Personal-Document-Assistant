@@ -80,9 +80,9 @@
 
 ## Phase 13: Conversational RAG
 
-- [ ] Add chat history storage to the streamlit app so prior turns persist within a session
-- [ ] Build a query rewriting step that condenses the chat history and new question into a standalone query
-- [ ] Update the prompt template to include recent conversation turns alongside retrieved context
-- [ ] Update the generator to accept and pass chat history through to the prompt
-- [ ] Wire history, query rewriting, and generation together in the streamlit app, and display the full conversation thread
-- [ ] Test multi-turn conversations, including follow-up questions and topic switches, to check retrieval and answers stay accurate
+- [x] Add chat history storage to the streamlit app so prior turns persist within a session
+- [x] Build a query rewriting step that condenses the chat history and new question into a standalone query
+- [x] Update the prompt template to include recent conversation turns alongside retrieved context
+- [x] Update the generator to accept and pass chat history through to the prompt
+- [x] Wire history, query rewriting, and generation together in the streamlit app, and display the full conversation thread
+- [x] Test multi-turn conversations, including follow-up questions and topic switches, to check retrieval and answers stay accurate
