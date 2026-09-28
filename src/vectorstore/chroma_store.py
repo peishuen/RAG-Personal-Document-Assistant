@@ -44,3 +44,30 @@ def store_chunks(chunks: list[dict], collection_name: str = "documents"):
     )
 
     return collection
+
+# group stored chunks by source file so the ui can show what's been ingested
+def list_sources(collection_name: str = "documents") -> list[dict]:
+    collection = get_collection(collection_name)
+    result = collection.get(include=["metadatas"])
+
+    sources = {}
+    for metadata in result["metadatas"]:
+        source = metadata["source"]
+        entry = sources.setdefault(source, {"source": source, "chunk_count": 0, "pages": set(), "type": metadata["type"]})
+        entry["chunk_count"] += 1
+        entry["pages"].add(metadata["page"])
+
+    return [
+        {
+            "source": entry["source"],
+            "chunk_count": entry["chunk_count"],
+            "page_count": len(entry["pages"]),
+            "type": entry["type"]
+        }
+        for entry in sorted(sources.values(), key=lambda e: e["source"])
+    ]
+
+# remove every chunk belonging to a source file from the collection
+def delete_source(source: str, collection_name: str = "documents"):
+    collection = get_collection(collection_name)
+    collection.delete(where={"source": source})

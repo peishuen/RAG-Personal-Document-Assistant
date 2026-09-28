@@ -12,7 +12,7 @@ load_dotenv()
 from src.ingestion.batch_loader import load_document
 from src.chunking.chunker import chunk_pages
 from src.embeddings.embedder import generate_embeddings
-from src.vectorstore.chroma_store import store_chunks, get_collection
+from src.vectorstore.chroma_store import store_chunks, get_collection, list_sources, delete_source
 from src.retrieval.cross_document import cross_document_search
 from src.generation.query_rewriter import rewrite_query
 from src.generation.generator import generate_answer
@@ -68,6 +68,22 @@ if uploaded_files:
             new_chunks = generate_embeddings(new_chunks)
             store_chunks(new_chunks)
         st.success(f"stored {len(new_chunks)} new chunk(s)")
+
+# let the user see what's currently stored and remove anything they no longer want searched
+if get_collection().count() > 0:
+    with st.expander("Manage stored documents"):
+        for doc in list_sources():
+            col1, col2 = st.columns([4, 1])
+            col1.write(f"{doc['source']} — {doc['page_count']} page(s), {doc['chunk_count']} chunk(s)")
+
+            if col2.button("Delete", key=f"delete_{doc['source']}"):
+                delete_source(doc["source"])
+
+                # also remove the file from disk if it's one of our own uploads
+                if os.path.exists(doc["source"]) and os.path.abspath(doc["source"]).startswith(os.path.abspath(UPLOAD_DIR)):
+                    os.remove(doc["source"])
+
+                st.rerun()
 
 # only let the user ask once the store actually has chunks in it, covers both a fresh upload and docs stored from before
 if get_collection().count() > 0:
