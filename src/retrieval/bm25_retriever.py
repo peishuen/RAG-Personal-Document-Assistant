@@ -4,26 +4,33 @@
 from rank_bm25 import BM25Okapi
 from src.vectorstore.chroma_store import get_collection
 
-def load_chunks(collection_name: str = "documents") -> list[dict]:
+def load_chunks(collection_name: str = "documents", sources: list[str] | None = None) -> list[dict]:
     # pull every stored chunk back out of chromadb, bm25 needs the full text set to build its index
     collection = get_collection(collection_name)
     result = collection.get(include=["documents", "metadatas"])
 
     chunks = []
     for text, metadata in zip(result["documents"], result["metadatas"]):
+        # skip chunks outside the requested scope, if the caller scoped it
+        if sources and metadata["source"] not in sources:
+            continue
+
         chunks.append({
             "text": text,
             "metadata": metadata
         })
 
-    return chunks 
+    return chunks
 
 def tokenize(text: str) -> list[str]:
     # lowercase and split on whitespace
     return text.lower().split()
 
-def bm25_search(query: str, collection_name: str = "documents", top_k: int = 5) -> list[dict]:
-    chunks = load_chunks(collection_name)
+def bm25_search(query: str, collection_name: str = "documents", top_k: int = 5, sources: list[str] | None = None) -> list[dict]:
+    chunks = load_chunks(collection_name, sources)
+
+    if not chunks:
+        return []
 
     # rebuild the index on every call since the chunk set is small right now, revisit if this gets slow
     tokenized_corpus = [tokenize(chunk['text']) for chunk in chunks]

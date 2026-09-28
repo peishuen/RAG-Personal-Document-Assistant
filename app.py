@@ -103,6 +103,12 @@ if get_collection().count() > 0:
         st.markdown(turn["citations"])
         st.divider()
 
+    # let the user narrow retrieval to specific documents, empty selection searches everything
+    selected_sources = st.multiselect(
+        "Limit search to specific document(s) (leave empty to search all)",
+        options=[doc["source"] for doc in list_sources()]
+    )
+
     question = st.text_input("Ask a question about your uploaded documents")
 
     # search across every stored document, then generate an answer from retrieved chunks
@@ -111,7 +117,7 @@ if get_collection().count() > 0:
             # resolve follow-ups like "what about its accuracy" into a standalone query before retrieval
             standalone_query = rewrite_query(question, st.session_state.chat_history)
 
-            chunks = cross_document_search(standalone_query, top_k=5)
+            chunks = cross_document_search(standalone_query, top_k=5, sources=selected_sources)
             answer = generate_answer(standalone_query, chunks, st.session_state.chat_history)
 
             # check the answer is actually backed by the retrieved chunks before showing it as trustworthy

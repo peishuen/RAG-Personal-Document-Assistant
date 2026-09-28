@@ -4,18 +4,24 @@
 from src.embeddings.embedder import get_dashscope_embedder
 from src.vectorstore.chroma_store import get_collection
 
-def semantic_search(query: str, collection_name: str = "documents", top_k: int = 5) -> list[dict]:
+def semantic_search(query: str, collection_name: str = "documents", top_k: int = 5, sources: list[str] | None = None) -> list[dict]:
     embedder = get_dashscope_embedder()
     collection = get_collection(collection_name)
 
     # embed the query the same way chunks were embedded so they land in the same vector space
     query_vector = embedder.embed_query(query)
 
-    result = collection.query(
-        query_embeddings=[query_vector],
-        n_results=top_k,
-        include=["documents", "metadatas", "distances"]
-    )
+    query_kwargs = {
+        "query_embeddings": [query_vector],
+        "n_results": top_k,
+        "include": ["documents", "metadatas", "distances"]
+    }
+
+    # restrict the search to specific source files, if the caller scoped it
+    if sources:
+        query_kwargs["where"] = {"source": {"$in": sources}}
+
+    result = collection.query(**query_kwargs)
 
     # chroma nests results one level per query
     # unwrap index 0 since only one query is sent

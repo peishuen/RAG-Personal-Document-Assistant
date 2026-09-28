@@ -60,10 +60,10 @@ def rerank(query: str, results: list[dict], top_k: int = 5) -> list[dict]:
     reranked = sorted(results, key=lambda r: r["rerank_score"], reverse=True)
     return reranked[:top_k]
 
-def hybrid_search(query: str, collection_name: str = "documents", top_k: int = 5, fusion_k: int = 20) -> list[dict]:
+def hybrid_search(query: str, collection_name: str = "documents", top_k: int = 5, fusion_k: int = 20, sources: list[str] | None = None) -> list[dict]:
     # pull extra candidates from each method before the expensive rerank step
-    bm25_results = bm25_search(query, collection_name, top_k=fusion_k)
-    semantic_results = semantic_search(query, collection_name, top_k=fusion_k)
+    bm25_results = bm25_search(query, collection_name, top_k=fusion_k, sources=sources)
+    semantic_results = semantic_search(query, collection_name, top_k=fusion_k, sources=sources)
 
     fused_results = reciprocal_rank_fusion(bm25_results, semantic_results)
 

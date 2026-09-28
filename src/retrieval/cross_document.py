@@ -1,12 +1,19 @@
 # search across every uploaded document and make sure results are not dominated by just one of them
 # useful for questions that need facts pulled from more than one document at once
 
+import math
+
 from src.retrieval.hybrid_ranker import hybrid_search
 
-def cross_document_search(query: str, top_k: int = 5, candidate_k: int = 15, max_per_document: int = 2) -> list[dict]:
+def cross_document_search(query: str, top_k: int = 5, candidate_k: int = 15, max_per_document: int = 2, sources: list[str] | None = None) -> list[dict]:
     # pull a larger candidate pool first
     # so there is enough variety to pick from across documents
-    candidates = hybrid_search(query, top_k=candidate_k)
+    candidates = hybrid_search(query, top_k=candidate_k, sources=sources)
+
+    # when scoped to fewer documents, relax the per-document cap so asking about
+    # just one or two specific documents doesn't get artificially truncated below top_k
+    if sources:
+        max_per_document = max(max_per_document, math.ceil(top_k / len(sources)))
 
     # walk the ranked candidates and cap how many chunks come from the same source document
     selected = []
