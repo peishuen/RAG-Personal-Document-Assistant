@@ -1,6 +1,7 @@
 # streamlit demo app for the rag personal document assistant
 # lets a user upload documents, ask a question and see the grounded answer with citations
 
+import hashlib
 import os
 import sys
 import streamlit as st
@@ -21,10 +22,11 @@ from src.citation.citation_tracker import build_cited_answer
 
 UPLOAD_DIR = "data/uploads"
 
-def already_stored(file_path: str, collection_name: str = "documents") -> bool:
-    # check if this file's chunks are already in the collection so re-uploading the same file dows not re-embed it
+def already_stored(content_hash: str, collection_name: str = "documents") -> bool:
+    # check by content hash, not file path, so re-uploading the same content under a new
+    # filename is still recognized as a duplicate instead of being re-embedded
     collection = get_collection(collection_name)
-    result = collection.get(where={"source": file_path}, limit=1)
+    result = collection.get(where={"content_hash": content_hash}, limit=1)
     return len(result["ids"]) > 0
 
 st.title("Personal Document Assistant")
@@ -45,22 +47,33 @@ uploaded_files = st.file_uploader(
 
 if uploaded_files:
     new_chunks = []
+    seen_hashes = set()  # catches duplicate content uploaded together in the same batch
 
     for uploaded_file in uploaded_files:
         # normalize to forward slashes so paths stay consistent with the sample doc paths used in testing/ingest_sample_docs.py
         file_path = os.path.join(UPLOAD_DIR, uploaded_file.name).replace(os.sep, "/")
+        file_bytes = uploaded_file.getbuffer()
+        content_hash = hashlib.sha256(file_bytes).hexdigest()
 
         # save the upload to disk so the existing loaders can read it by file path
         with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+            f.write(file_bytes)
 
-        # skip files that are already embedded and stored, so re-uploading the same file does not redo the work
-        if already_stored(file_path):
-            st.info(f"{uploaded_file.name} is already stored, skipping...")
+        # skip content that's already stored (even under a different filename) or repeated within this same upload
+        if content_hash in seen_hashes or already_stored(content_hash):
+            st.info(f"{uploaded_file.name} matches content already stored, skipping...")
             continue
 
+        seen_hashes.add(content_hash)
+
         pages = load_document(file_path)
-        new_chunks.extend(chunk_pages(pages))
+        chunks = chunk_pages(pages)
+
+        # stamp every chunk with the file's content hash so future uploads can be matched by content
+        for chunk in chunks:
+            chunk["metadata"]["content_hash"] = content_hash
+
+        new_chunks.extend(chunks)
 
     # embed and store only the chunks from newly uploaded files
     if new_chunks:
