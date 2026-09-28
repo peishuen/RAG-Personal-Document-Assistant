@@ -71,6 +71,22 @@ if uploaded_files:
 
 # only let the user ask once the store actually has chunks in it, covers both a fresh upload and docs stored from before
 if get_collection().count() > 0:
+    # render past turns first, above the input, so the thread stays on screen and
+    # doesn't get overwritten by the spinner below while a new answer is generating
+    for turn in st.session_state.chat_history:
+        st.markdown(f"**You:** {turn['question']}")
+        st.write(turn["answer"])
+
+        # check this turn's own grounding result
+        if turn["grounded"]:
+            st.success(f"grounded (best match score {turn['best_score']:.2f})")
+        else:
+            st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
+
+        st.markdown("**Sources**")
+        st.markdown(turn["citations"])
+        st.divider()
+
     question = st.text_input("Ask a question about your uploaded documents")
 
     # search across every stored document, then generate an answer from retrieved chunks
@@ -97,19 +113,7 @@ if get_collection().count() > 0:
                 "citations": cited["citations"]
             })
 
-    # loop through every past turn, oldest first, so the thread always renders regardless of button state
-    for turn in st.session_state.chat_history:
-        st.markdown(f"**You:** {turn['question']}")
-        st.write(turn["answer"])
-
-        # check this turn's own grounding result
-        if turn["grounded"]:
-            st.success(f"grounded (best match score {turn['best_score']:.2f})")
-        else:
-            st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
-
-        st.markdown("**Sources**")
-        st.markdown(turn["citations"])
-        st.divider()
+        # rerun so the new turn renders immediately in the history loop above
+        st.rerun()
 else:
     st.info("upload and store at least one document before asking a question")
