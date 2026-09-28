@@ -69,6 +69,8 @@ if uploaded_files:
             store_chunks(new_chunks)
         st.success(f"stored {len(new_chunks)} new chunk(s)")
 
+st.divider()
+
 # let the user see what's currently stored and remove anything they no longer want searched
 if get_collection().count() > 0:
     with st.expander("Manage stored documents"):
@@ -85,22 +87,30 @@ if get_collection().count() > 0:
 
                 st.rerun()
 
+    st.divider()
+
 # only let the user ask once the store actually has chunks in it, covers both a fresh upload and docs stored from before
 if get_collection().count() > 0:
     # render past turns first, above the input, so the thread stays on screen and
     # doesn't get overwritten by the spinner below while a new answer is generating
+    # each turn renders as a chat bubble so the history reads visually distinct from the rest of the page
     for turn in st.session_state.chat_history:
-        st.markdown(f"**You:** {turn['question']}")
-        st.write(turn["answer"])
+        with st.chat_message("user"):
+            st.markdown(turn["question"])
 
-        # check this turn's own grounding result
-        if turn["grounded"]:
-            st.success(f"grounded (best match score {turn['best_score']:.2f})")
-        else:
-            st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
+        with st.chat_message("assistant"):
+            st.write(turn["answer"])
 
-        st.markdown("**Sources**")
-        st.markdown(turn["citations"])
+            # check this turn's own grounding result
+            if turn["grounded"]:
+                st.success(f"grounded (best match score {turn['best_score']:.2f})")
+            else:
+                st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
+
+            st.markdown("**Sources**")
+            st.markdown(turn["citations"])
+
+    if st.session_state.chat_history:
         st.divider()
 
     # let the user narrow retrieval to specific documents, empty selection searches everything
