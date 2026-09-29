@@ -15,6 +15,10 @@ rank-bm25==0.2.2
 # pdf loading
 pypdf==4.3.1
 
+# column-aware pdf text extraction, detects multi-column layouts (common in research
+# papers) automatically and reads them in the correct order
+pymupdf4llm==1.28.2
+
 # ocr for scanned documents
 pytesseract==0.3.13
 Pillow==10.4.0

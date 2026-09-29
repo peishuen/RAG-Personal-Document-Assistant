@@ -42,9 +42,16 @@ def reciprocal_rank_fusion(bm25_results: list[dict], semantic_results: list[dict
 
     return fused_results
 
+# cache the loaded model at module level, so it's read from disk once per process
+# instead of on every single search
+_reranker = None
+
 def get_reranker():
     # load a small pretrained cross-encoder for scoring query and chunk together
-    return CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+    global _reranker
+    if _reranker is None:
+        _reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+    return _reranker
 
 def rerank(query: str, results: list[dict], top_k: int = 5) -> list[dict]:
     reranker = get_reranker()

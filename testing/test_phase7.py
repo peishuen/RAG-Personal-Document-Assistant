@@ -32,4 +32,4 @@ for query in sample_questions:
 
     print(f"\n=== query: {query} ===")
     print(f"answer: {answer}")
-    print(f"grounded: {grounding['grounded']} (best match score {grounding['best_score']:.4f})")
+    print(f"grounded: {grounding['grounded']} ({grounding['reason']})")

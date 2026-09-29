@@ -1,15 +1,15 @@
 # load and extract text from pdf files, return a list of pages with metadata
+# uses pymupdf4llm, which detects multi-column layouts (common in research papers)
+# automatically and returns each page's text in the correct reading order
 
-from pypdf import PdfReader
+import pymupdf4llm
 
 def load_pdf(file_path: str) -> list[dict]:
-    # open the pdf file
-    reader = PdfReader(file_path)
+    pdf_pages = pymupdf4llm.to_markdown(file_path, page_chunks=True)
     pages = []
 
-    # loop through each page and extract text
-    for i, page in enumerate(reader.pages):
-        text = page.extract_text()
+    for i, pdf_page in enumerate(pdf_pages):
+        text = pdf_page["text"]
 
         # skip blank pages
         if not text or not text.strip():

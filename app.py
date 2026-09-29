@@ -116,9 +116,9 @@ if get_collection().count() > 0:
 
             # check this turn's own grounding result
             if turn["grounded"]:
-                st.success(f"grounded (best match score {turn['best_score']:.2f})")
+                st.success(f"grounded: {turn['grounding_reason']}")
             else:
-                st.warning(f"not clearly grounded (best match score {turn['best_score']:.2f}), answer may be unreliable")
+                st.warning(f"not clearly grounded: {turn['grounding_reason']}, answer may be unreliable")
 
             st.markdown("**Sources**")
             st.markdown(turn["citations"])
@@ -154,7 +154,7 @@ if get_collection().count() > 0:
                 "question": question,
                 "answer": cited["answer"],
                 "grounded": grounding["grounded"],
-                "best_score": grounding["best_score"],
+                "grounding_reason": grounding["reason"],
                 "citations": cited["citations"]
             })
 
