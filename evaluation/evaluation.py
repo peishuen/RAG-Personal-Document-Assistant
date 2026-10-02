@@ -2,8 +2,9 @@
 # computes precision@k and recall@k for bm25, semantic and hybrid retrieval and answer correctness
 
 import sys
-import os 
+import os
 import json
+import numpy as np
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -17,13 +18,17 @@ from src.retrieval.bm25_retriever import bm25_search
 from src.retrieval.semantic_retriever import semantic_search
 from src.retrieval.hybrid_ranker import hybrid_search, build_chunk_id
 from src.generation.generator import generate_answer
-from src.generation.grounding_check import cosine_similarity
 from src.embeddings.embedder import get_dashscope_embedder
 
 TOP_K = 5
 
 # below this similarity, a generated answer is treated as not matching the expected answer
 CORRECTNESS_THRESHOLD = 0.75
+
+# measure how close two vectors point in the same direction, 1 means identical and 0 means unrelated
+def cosine_similarity(vec_a, vec_b):
+    vec_a, vec_b = np.array(vec_a), np.array(vec_b)
+    return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))
 
 def load_qa_dataset(path: str = "evaluation/qa_dataset.json") -> list[dict]:
     with open(path, "r", encoding="utf-8") as f:

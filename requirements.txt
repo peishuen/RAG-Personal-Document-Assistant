@@ -5,6 +5,10 @@ langchain-community==0.3.24
 # qwen llm and embeddings via dashscope
 dashscope==1.20.11
 
+# openai-compatible client, needed for qwen3.8-max which only works through the
+# openai-compatible route on the dedicated workspace endpoint
+langchain-openai==0.3.35
+
 # vector store
 chromadb==0.6.3
 posthog<3.7.0
