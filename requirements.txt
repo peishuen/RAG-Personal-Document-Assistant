@@ -38,3 +38,8 @@ sentence-transformers==3.0.1
 
 # web ui for the demo app
 streamlit == 1.38.0
+
+# fastapi backend for the react frontend
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9

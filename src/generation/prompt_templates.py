@@ -2,6 +2,10 @@
 # tells the model to answer only from the context, so it stays grounded instead of making things up
 # also tells it to cite which source it used, so citation_tracker can trace the answer back to a chunk
 
+# only the last few turns are kept in any prompt, otherwise every reply resends the whole
+# conversation so far and both cost and latency keep growing the longer a session runs
+MAX_HISTORY_TURNS = 5
+
 def build_prompt(query: str, chunks: list[dict], chat_history: list[dict] = None) -> str:
     # number each chunk so the model can point back to a specific source
     context = "\n\n".join(
@@ -10,8 +14,9 @@ def build_prompt(query: str, chunks: list[dict], chat_history: list[dict] = None
     )
 
     # format prior turns as plain conversation, empty string when there is no history yet
+    recent_history = (chat_history or [])[-MAX_HISTORY_TURNS:]
     history_text = "\n".join(
-        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in (chat_history or [])
+        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in recent_history
     )
 
     # only add the history section when there is actually history to show

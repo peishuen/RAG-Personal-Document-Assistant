@@ -2,7 +2,7 @@
 
 A retrieval-augmented generation system that lets a user upload their own documents and ask questions about them in plain language. Instead of scrolling through a PDF or a set of notes, the user gets a direct answer with the exact source cited.
 
-**Live demo:** [peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/)
+**Live demo:** [peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/) (the original Streamlit interface; the FastAPI + React interface described below is newer and runs locally only, see Setup)
 
 ## Overview
 
@@ -32,6 +32,9 @@ The project is intentionally domain agnostic. The same pipeline works whether th
 | Qwen embeddings (DashScope) | Converts document chunks and queries into vectors for semantic search, via Alibaba's DashScope API |
 | OCR (Tesseract) | Extracts text from scanned reports before chunking, used only when the uploaded document has no selectable text |
 | Qwen LLM (DashScope) | Generates the final answer from the retrieved context, via LangChain's ChatTongyi wrapper |
+| FastAPI | Serves the retrieval and generation pipeline as REST endpoints for the React frontend |
+| React + Tailwind CSS | The current web interface: document upload, session history, and chat with clickable source citations |
+| Streamlit | The original interface (`app.py`), still in the repo and still deployed at the live demo link above |
 
 ## Project Structure
 
@@ -42,11 +45,28 @@ RAG-Personal-Document-Assistant/
 ├── requirements.txt
 ├── runtime.txt                   # pins the Python version used on Streamlit Community Cloud
 ├── .env                          # local only, holds DASHSCOPE_API_KEY and friends, never committed
-├── app.py                        # streamlit entry point, run with `streamlit run app.py`
+├── app.py                        # original streamlit entry point, run with `streamlit run app.py`
+│
+├── backend/                      # fastapi backend for the react frontend, run with `uvicorn backend.main:app`
+│   ├── main.py                   # app setup, cors, mounts the routers below
+│   └── routers/
+│       ├── documents.py          # upload, list, delete documents
+│       ├── sessions.py           # create, list, resume, delete chat sessions
+│       └── chat.py               # runs the retrieval + generation pipeline for one question
+│
+├── frontend/                     # react + tailwind interface, run with `npm run dev` inside this folder
+│   ├── index.html
+│   └── src/
+│       ├── App.jsx                # layout: documents + sessions on the left, chat on the right
+│       ├── api.js                 # fetch wrappers for the backend's REST endpoints
+│       └── components/
+│           ├── DocumentPanel.jsx
+│           ├── SessionPanel.jsx
+│           └── ChatPanel.jsx
 │
 ├── data/
 │   ├── sample_docs/               # pdf, text, and scanned report samples used for testing
-│   ├── uploads/                   # documents uploaded through the streamlit app
+│   ├── uploads/                   # documents uploaded through either frontend
 │   └── chroma_db/                 # chromadb's persistent local store
 │
 ├── src/
@@ -152,24 +172,43 @@ DASHSCOPE_API_REGION=int
 DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
 ```
 
-Then run the app:
+Then run the app. There are two interfaces available, both share the same pipeline and the same `data/chroma_db` store:
+
+**FastAPI + React (current)**
+
+```bash
+# backend, from the project root
+uvicorn backend.main:app --reload --port 8000
+
+# frontend, in a second terminal
+cd frontend
+npm install
+npm run dev
+```
+
+This opens the app at `http://localhost:5173`.
+
+**Streamlit (original, still works)**
 
 ```bash
 streamlit run app.py
 ```
 
-This opens the app at `http://localhost:8501`. The repo already ships with the three sample documents pre-embedded in `data/chroma_db`, so you can start asking questions right away without uploading anything first.
+This opens the app at `http://localhost:8501`.
+
+Either way, the repo already ships with the three sample documents pre-embedded in `data/chroma_db`, so you can start asking questions right away without uploading anything first.
 
 ## Usage
 
 1. Upload one or more documents (PDF, text file, or scanned report)
 2. Ask a question about its content, or a question that spans multiple uploaded documents
-3. Review the answer along with the cited source
-4. Optionally, compare BM25, semantic search, and hybrid ranking results for the same question
+3. Review the answer along with the cited source, each `[Source N]` in the answer links to its entry in the source list
+4. Optionally, scope a question to specific documents using the checkboxes next to each uploaded file
 
 ## Future Improvements
 
 - Add latency and cost benchmarking for larger document sets
+- Deploy the FastAPI + React interface (currently local-only)
 
 ## Author
 

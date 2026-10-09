@@ -86,3 +86,19 @@
 - [x] Update the generator to accept and pass chat history through to the prompt
 - [x] Wire history, query rewriting, and generation together in the streamlit app, and display the full conversation thread
 - [x] Test multi-turn conversations, including follow-up questions and topic switches, to check retrieval and answers stay accurate
+
+## Phase 14: Frontend Migration (FastAPI + React + Tailwind)
+
+- [x] Build a FastAPI backend exposing the existing pipeline as REST endpoints for documents, sessions, and chat
+- [x] Build a React + Tailwind frontend replicating the Streamlit layout (document and session panels, chat with suggested prompts)
+- [x] Render inline `[Source N]` citations as links to their matching entry in the source list
+- [x] Run the grounding check asynchronously so the answer doesn't wait on it
+- [x] Fix a state bug where switching sessions while a question was still answering could show the question as missing, or apply its answer to the wrong session
+- [x] Redesign the UI with a consistent color palette, icon set, and tinted list backgrounds
+
+## Phase 15: Performance Optimization
+
+- [x] Cache the BM25 index instead of rebuilding it from the full collection on every search
+- [x] Run BM25 and semantic search concurrently instead of sequentially
+- [x] Cap how many prior turns are included in each prompt, instead of resending the full conversation every time
+- [x] Skip the grounding check entirely when the answer cites no source

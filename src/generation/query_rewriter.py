@@ -2,6 +2,7 @@
 # lets retrieval work on follow-ups like "what about its accuracy" by resolving what "its" refers to
 
 from src.generation.llm_client import get_llm
+from src.generation.prompt_templates import MAX_HISTORY_TURNS
 
 # skip rewriting when there is no prior turn, the ques is already standalone
 def rewrite_query(question: str, chat_history: list[dict]) -> str:
@@ -12,7 +13,7 @@ def rewrite_query(question: str, chat_history: list[dict]) -> str:
 
     # only the question and answer text matter here, not grounding or citation details
     history_text = "\n".join(
-        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in chat_history
+        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in chat_history[-MAX_HISTORY_TURNS:]
     )
 
     prompt = f"""

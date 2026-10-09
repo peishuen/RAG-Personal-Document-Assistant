@@ -1,6 +1,7 @@
 # combine bm25 and semantic results, then rerank the top matches with a cross-encoder
 # fuse by rank position, not raw score, since bm25 and semantic scores are not comparable
 
+from concurrent.futures import ThreadPoolExecutor
 from sentence_transformers import CrossEncoder
 from src.retrieval.bm25_retriever import bm25_search
 from src.retrieval.semantic_retriever import semantic_search
@@ -68,9 +69,13 @@ def rerank(query: str, results: list[dict], top_k: int = 5) -> list[dict]:
     return reranked[:top_k]
 
 def hybrid_search(query: str, collection_name: str = "documents", top_k: int = 5, fusion_k: int = 20, sources: list[str] | None = None) -> list[dict]:
-    # pull extra candidates from each method before the expensive rerank step
-    bm25_results = bm25_search(query, collection_name, top_k=fusion_k, sources=sources)
-    semantic_results = semantic_search(query, collection_name, top_k=fusion_k, sources=sources)
+    # bm25 is local cpu work and semantic search is a network call, run them side by side
+    # instead of one after the other, pull extra candidates from each before the rerank step
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        bm25_future = executor.submit(bm25_search, query, collection_name, fusion_k, sources)
+        semantic_future = executor.submit(semantic_search, query, collection_name, fusion_k, sources)
+        bm25_results = bm25_future.result()
+        semantic_results = semantic_future.result()
 
     fused_results = reciprocal_rank_fusion(bm25_results, semantic_results)
 
