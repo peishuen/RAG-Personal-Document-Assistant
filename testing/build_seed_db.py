@@ -1,9 +1,11 @@
-# one-off local dev tool: embeds the sample docs into a clean, standalone chromadb
-# folder (data/seed_chroma_db) containing ONLY the sample docs, which gets committed
-# and shipped in the docker image. the backend copies it into the live data/chroma_db
-# on startup if that's empty, so render never has to run ocr/embedding itself (that's
-# what caused the OOM on the 512mb free tier) — re-run this manually whenever the
-# sample docs themselves change, then commit the regenerated data/seed_chroma_db/
+"""
+This file builds the seed database, a small chromadb folder (data/seed_chroma_db)
+that only has the sample docs.
+The folder is committed and shipped in the docker image. The backend copies it
+into data/chroma_db on startup if that folder is empty, so render does not need
+to run ocr and embedding itself (this ran out of memory on the free tier).
+Run this file by hand whenever the sample docs change, then commit the new folder.
+"""
 
 import sys
 import os
@@ -22,18 +24,22 @@ from src.embeddings.embedder import generate_embeddings
 
 SEED_DIR = "data/seed_chroma_db"
 
-# rebuild from scratch each time so the seed never accumulates stale data
+# delete the old seed folder first, so no old data is left behind
 if os.path.exists(SEED_DIR):
     shutil.rmtree(SEED_DIR)
 
+# load and chunk the sample docs
 chunks = load_documents(SAMPLE_DOCS)
 print(f"loaded and chunked {len(SAMPLE_DOCS)} sample doc(s) into {len(chunks)} chunks")
 
+# turn the chunks into embeddings
 chunks = generate_embeddings(chunks)
 
+# create a new database with cosine similarity
 client = chromadb.PersistentClient(path=SEED_DIR)
 collection = client.create_collection(name="documents", metadata={"hnsw:space": "cosine"})
 
+# build the same chunk ids used in chroma_store.py, then save everything
 ids = [f"{c['metadata']['source']}_p{c['metadata']['page']}_c{c['metadata']['chunk_index']}" for c in chunks]
 collection.add(
     ids=ids,

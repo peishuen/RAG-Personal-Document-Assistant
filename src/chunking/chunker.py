@@ -1,42 +1,48 @@
-# split document pages into smaller chunks for embedding and retrieval
-# chunk size adjusts based on document type since dense pdfs and ocr text behave differently
-# splitting tries paragraphs first, then sentences, then words, so chunks stay readable
+"""
+This file splits document pages into smaller pieces called chunks.
+Small chunks are easier to embed and search than a whole page.
+The chunk size changes with the document type, because clean pdf text and
+noisy ocr text work best with different sizes.
+It tries to split at paragraphs first, then sentences, then words, so each
+chunk stays easy to read.
+"""
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# default chunk settings per document type
-# pdf text is usually clean, so bigger chunks with less overlap work fine
-# ocr text is noisier, so smaller chunks with more overlap help catch broken sentences
+# set the chunk size and overlap for each document type
+# use bigger chunks with less overlap for pdf, because the text is usually clean
+# use smaller chunks with more overlap for ocr, because the text is noisier
 CHUNK_SETTINGS = {
     "pdf": {"chunk_size": 1000, "chunk_overlap": 150},
     "text": {"chunk_size": 800, "chunk_overlap": 100},
     "scanned": {"chunk_size": 600, "chunk_overlap": 200}
 }
 
-# split order: paragraph break, line break, sentence end, word, then character as last resort
-# this keeps chunks from cutting off mid-sentence whenever possible
+# split in this order: paragraph, line, sentence, word, then single character
+# follow this order to avoid cutting a sentence in the middle when possible
 SEPARATORS = ["\n\n", "\n", ". ", "! ", "? ", " ", ""]
 
-# turn each page's raw text into a list of chunk dicts, keeping the page metadata on every chunk
+# turn each page into a list of chunks and keep the page info on every chunk
 def chunk_pages(pages: list[dict]) -> list[dict]:
     chunks = []
 
     for page in pages:
         doc_type = page["metadata"]["type"]
 
-        # pick chunk size settings based on the document type, fallback to pdf settings
+        # pick the settings for this document type, and use pdf settings if the type is unknown
         settings = CHUNK_SETTINGS.get(doc_type, CHUNK_SETTINGS["pdf"])
 
+        # create the splitter with those settings
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=settings["chunk_size"],
             chunk_overlap=settings["chunk_overlap"],
             separators=SEPARATORS
         )
 
-        # split this page text into smaller pieces
+        # split the page text into smaller pieces
         page_chunks = splitter.split_text(page["text"])
 
-        # attach the original metadata to every chunk so we don't lose the source
+        # copy the page info onto every chunk to keep track of the source
         for i, chunk_text in enumerate(page_chunks):
             chunks.append({
                 "text": chunk_text,

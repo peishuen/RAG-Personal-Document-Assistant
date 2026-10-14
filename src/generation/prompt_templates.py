@@ -1,9 +1,13 @@
-# build the prompt that gives the llm the question plus the retrieved chunks as context
-# tells the model to answer only from the context, so it stays grounded instead of making things up
-# also tells it to cite which source it used, so citation_tracker can trace the answer back to a chunk
+"""
+This file builds the prompt (the text we send to the llm).
+The prompt has the question, the retrieved chunks as context, and the recent chat.
+It tells the model to answer only from the context, so it does not make things up.
+It also tells the model to cite its sources, so citation_tracker can link the
+answer back to a chunk.
+"""
 
-# only the last few turns are kept in any prompt, otherwise every reply resends the whole
-# conversation so far and both cost and latency keep growing the longer a session runs
+# keep only the last few turns in the prompt
+# sending the whole chat every time would make cost and waiting time grow
 MAX_HISTORY_TURNS = 5
 
 def build_prompt(query: str, chunks: list[dict], chat_history: list[dict] = None) -> str:
@@ -13,17 +17,18 @@ def build_prompt(query: str, chunks: list[dict], chat_history: list[dict] = None
         for i, c in enumerate(chunks)
     )
 
-    # format prior turns as plain conversation, empty string when there is no history yet
+    # turn the recent turns into plain text, or an empty string if there is no history yet
     recent_history = (chat_history or [])[-MAX_HISTORY_TURNS:]
     history_text = "\n".join(
         f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in recent_history
     )
 
-    # only add the history section when there is actually history to show
+    # add the history section only when there is history to show
     history_block = f"""
     Conversation history (for context only, do not treat as a source): {history_text} \n
     """ if history_text else ""
 
+    # return the full prompt text for the llm
     return f"""
     Answer the question using only the context below. \n
     Cite the source you used in square brackets, like [Source 1], right after any information you use from it. \n

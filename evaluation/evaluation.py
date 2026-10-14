@@ -1,16 +1,22 @@
-# run retrieval and generation evaluation using the labeled qa dataset
-# computes precision@k and recall@k for bm25, semantic and hybrid retrieval and answer correctness
+"""
+This file tests how good the search and the answers are, using a labeled question set.
+It computes precision@k and recall@k for bm25, semantic and hybrid search,
+and checks if the generated answers are close to the expected answers.
+The results are printed and saved to evaluation/results.
+"""
 
 import sys
 import os
 import json
 import numpy as np
 
+# print text in utf-8, so special characters show correctly
 sys.stdout.reconfigure(encoding="utf-8")
 
 # add the project root to the path so src can be found
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# load the secret keys from the .env file
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,9 +26,10 @@ from src.retrieval.hybrid_ranker import hybrid_search, build_chunk_id
 from src.generation.generator import generate_answer
 from src.embeddings.embedder import get_dashscope_embedder
 
+# set how many chunks each search returns
 TOP_K = 5
 
-# below this similarity, a generated answer is treated as not matching the expected answer
+# treat an answer as wrong when its similarity to the expected answer is below this number
 CORRECTNESS_THRESHOLD = 0.75
 
 # measure how close two vectors point in the same direction, 1 means identical and 0 means unrelated
@@ -31,11 +38,13 @@ def cosine_similarity(vec_a, vec_b):
     return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))
 
 def load_qa_dataset(path: str = "evaluation/qa_dataset.json") -> list[dict]:
+    # read the labeled questions from the json file
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def precision_recall_at_k(results: list[dict], ground_truth_ids: list[str]) -> tuple[float, float]:
     # build the same chunk id used everywhere else
+    # precision is the share of results that are relevant, recall is the share of relevant chunks found
     retrieved_ids = [build_chunk_id(r) for r in results]
 
     # count how many retrieved chunks are actually relevant
@@ -48,6 +57,7 @@ def precision_recall_at_k(results: list[dict], ground_truth_ids: list[str]) -> t
 
 
 def run_evaluation(qa_dataset: list[dict]) -> dict:
+    # list the three search methods to compare
     methods = {
         "bm25": lambda q: bm25_search(q, top_k=TOP_K),
         "semantic": lambda q: semantic_search(q, top_k=TOP_K),
@@ -62,7 +72,7 @@ def run_evaluation(qa_dataset: list[dict]) -> dict:
     for item in qa_dataset:
         hybrid_results = None
 
-        # run every retrieval method once, score it then keep the hybrid results for generation below
+        # run every search method once and score it, then keep the hybrid results for the answer below
         for name, search_fn in methods.items():
             results = search_fn(item['question'])
             if name == "hybrid":
@@ -72,18 +82,18 @@ def run_evaluation(qa_dataset: list[dict]) -> dict:
             scores[name]["precision"].append(precision)
             scores[name]["recall"].append(recall)
 
-        # generate an answer from the hybrid results and compare it to expected ans
+        # generate an answer from the hybrid results and compare it to the expected answer
         generated_answer = generate_answer(item['question'], hybrid_results)
         generated_vector = embedder.embed_query(generated_answer)
         expected_vector = embedder.embed_query(item['expected_answer'])
-        # cast to plain python types, numpy's float64/bool_ from cosine_similarity are not json serializable
+        # convert to plain python types, because numpy types cannot be saved as json
         similarity = float(cosine_similarity(generated_vector, expected_vector))
         is_correct = bool(similarity >= CORRECTNESS_THRESHOLD)
 
         if is_correct:
             correct_count += 1
 
-        # record this question's own result, so failures can be traced back to real evidence later
+        # save the result of this question, so failures can be checked later
         details.append({
             "question": item['question'],
             "expected_answer": item['expected_answer'],
@@ -92,7 +102,7 @@ def run_evaluation(qa_dataset: list[dict]) -> dict:
             "correct": is_correct
         })
 
-    # average precision and recall across every question, per method
+    # average the precision and recall over all questions, for each method
     retrieval_summary = {
         name: {
             "precision@k": sum(values['precision']) / len(values['precision']),
@@ -107,6 +117,7 @@ def run_evaluation(qa_dataset: list[dict]) -> dict:
         "details": details
     }
 
+# run the evaluation only when this file is run directly
 if __name__ == "__main__":
     qa_dataset = load_qa_dataset()
     print(f"loaded {len(qa_dataset)} labeled questions\n")
@@ -119,12 +130,13 @@ if __name__ == "__main__":
 
     print(f"\nanswer correctness: {results['answer_accuracy']:.1%} of generated answers matched the expected answer")
 
-    # save every question's result to disk, so specific findings can be traced back to real evidence
+    # save the result of every question to a file, so findings can be checked later
     details_path = "evaluation/results/detailed_results.json"
     with open(details_path, "w", encoding="utf-8") as f:
         json.dump(results['details'], f, indent=2, ensure_ascii=False)
     print(f"\nper-question results saved to {details_path}")
 
+    # print the questions that failed
     failures = [d for d in results['details'] if not d['correct']]
     if failures:
         print(f"\n{len(failures)} question(s) failed the correctness check:")

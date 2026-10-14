@@ -1,4 +1,7 @@
-# generate an answer for each sample question, then attach and print its source citations
+"""
+This file generates an answer for each sample question.
+Then it adds the source citations and prints them.
+"""
 
 import sys
 import os
@@ -15,7 +18,7 @@ from src.retrieval.hybrid_ranker import hybrid_search
 from src.generation.generator import generate_answer
 from src.citation.citation_tracker import build_cited_answer
 
-# reuse the same questions from earlier phase tests for direct comparison
+# use the same questions as the earlier phase tests, so the results can be compared
 sample_questions = [
     "How many frames and scenes are in the OPV2V dataset?",
     "What are the three fusion strategies for vehicle to vehicle perception?",
@@ -26,6 +29,7 @@ sample_questions = [
 ]
 
 for query in sample_questions:
+    # find the best chunks, write an answer, then add the citations
     chunks = hybrid_search(query, top_k=3)
     answer = generate_answer(query, chunks)
     result = build_cited_answer(answer, chunks)

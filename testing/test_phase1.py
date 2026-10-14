@@ -1,4 +1,7 @@
-# confirm that all key packages load and the dashscope api key works
+"""
+This file checks that the key packages can be imported
+and that the dashscope api key works.
+"""
 
 import os
 import sys
@@ -8,27 +11,27 @@ import chromadb
 import langchain
 from langchain_community.chat_models import ChatTongyi
 
-# load api key and endpoint from .env
+# load the api key and endpoint from the .env file
 load_dotenv()
 sys.stdout.reconfigure(encoding="utf-8")
 
-# confirm values are loading correctly
+# check that the values are loaded
 api_key = os.getenv("DASHSCOPE_API_KEY")
 base_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
 print("api key loaded:", api_key[:15] + "..." if api_key else "NOT FOUND")
 print("api key length:", len(api_key) if api_key else 0)
 print("base url:", base_url if base_url else "NOT FOUND")
 
-# explicitly point dashscope sdk to the international endpoint
+# point the dashscope sdk to the international endpoint
 dashscope.api_key = api_key
 dashscope.base_http_api_url = base_url
 
-# check all imports loaded
+# print the versions to show the imports worked
 print("langchain:", langchain.__version__)
 print("chromadb:", chromadb.__version__)
 print("all packages imported successfully")
 
-# test qwen connection via chattongyi, pass key directly to avoid env lookup issues
+# test the qwen connection with chattongyi, and pass the key directly to avoid lookup problems
 llm = ChatTongyi(
     model="qwen-turbo",
     dashscope_api_key=api_key,

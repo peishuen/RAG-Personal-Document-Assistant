@@ -1,4 +1,8 @@
-# load and chunk multiple uploaded documents at once, picking the right loader based on file extension
+"""
+This file loads and chunks many uploaded documents in one go.
+It looks at each file extension (.txt or .pdf) to pick the right loader,
+then splits the pages into smaller chunks ready for embedding.
+"""
 
 import os
 from src.ingestion.text_loader import load_text
@@ -12,14 +16,14 @@ def load_document(file_path: str) -> list[dict]:
     if ext == ".txt":
         return load_text(file_path)
     elif ext == ".pdf":
-        # tries normal text extraction first
-        # only falls back to ocr on pages with no text
+        # try normal text extraction first, then use ocr only on pages with no text
         return load_scanned_pdf(file_path)
     else:
+        # stop early if the file type is not supported
         raise ValueError(f"Unsupported file type: {ext}")
 
 def load_documents(file_paths: list[str]) -> list[dict]:
-    # load and chunk every uploaded file so they can all be embedded and stored tgt
+    # collect the chunks from every file into one list
     all_chunks = []
     for file_path in file_paths:
         pages = load_document(file_path)

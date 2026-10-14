@@ -1,4 +1,7 @@
-# run the full pipeline: embed chunks, store in chromadb, then test retrieval by similarity search
+"""
+This file runs the full pipeline on one pdf.
+It embeds the chunks, stores them in chromadb, then tests a similarity search.
+"""
 
 import sys
 import os
@@ -9,7 +12,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 # add the project root to the path so src can be found
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# load api key from .env
+# load the api key from the .env file
 load_dotenv()
 
 from src.ingestion.pdf_loader import load_pdf
@@ -26,11 +29,11 @@ print(f"loaded and chunked: {len(chunks)} chunks")
 chunks = generate_embeddings(chunks)
 print(f"embeddings generated for all chunks")
 
-# store annd chunks in chromadb
+# store the chunks in chromadb
 collection = store_chunks(chunks)
 print(f'stored in chromadb, collection now has {collection.count()} chunks')
 
-# test retrieval (embed a query and search for the closest chunks)
+# test the search by embedding a question and finding the closest chunks
 embedder = get_dashscope_embedder()
 query = "What is vehicle-to-vehicle communication used for?"
 query_vector = embedder.embed_query(query)
@@ -40,6 +43,7 @@ results = collection.query(
     n_results=3
 )
 
+# print the top 3 matches
 print()
 print(f'query: {query}')
 print('top 3 matches:')

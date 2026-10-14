@@ -1,5 +1,8 @@
-# retrieve chunks from the chroma collection using semantic similarity search
-# embeds the query with the same model used on the chunks, then finds the closest vectors in the store
+"""
+This file finds chunks by meaning, not by exact words.
+It turns the question into an embedding with the same model used for the chunks,
+then looks for the chunks whose embeddings are closest to it.
+"""
 
 from src.embeddings.embedder import get_dashscope_embedder
 from src.vectorstore.chroma_store import get_collection
@@ -8,31 +11,32 @@ def semantic_search(query: str, collection_name: str = "documents", top_k: int =
     embedder = get_dashscope_embedder()
     collection = get_collection(collection_name)
 
-    # embed the query the same way chunks were embedded so they land in the same vector space
+    # embed the question the same way as the chunks, so they can be compared
     query_vector = embedder.embed_query(query)
 
+    # set up the search options
     query_kwargs = {
         "query_embeddings": [query_vector],
         "n_results": top_k,
         "include": ["documents", "metadatas", "distances"]
     }
 
-    # restrict the search to specific source files, if the caller scoped it
+    # search only inside the chosen files, if any were given
     if sources:
         query_kwargs["where"] = {"source": {"$in": sources}}
 
+    # run the search
     result = collection.query(**query_kwargs)
 
-    # chroma nests results one level per query
-    # unwrap index 0 since only one query is sent
+    # take the first item of each list, because chroma wraps results per question
+    # and we only sent one question
     texts = result["documents"][0]
     metadatas = result["metadatas"][0]
     distances = result["distances"][0]
 
     results = []
     for text, metadata, distance in zip(texts, metadatas, distances):
-        # convert cosine distance to similarity
-        # a higher score means more relevant like bm25
+        # turn distance into similarity, so a higher score means more relevant (same as bm25)
         results.append({
             "text": text,
             "metadata": metadata,

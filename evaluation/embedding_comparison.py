@@ -1,5 +1,8 @@
-# compare dashscope embedding model against a local sentence-transformers model
-# embeds the same chunks and test queries with both, then compares which chunks come back closest
+"""
+This file compares two embedding models: dashscope and a local sentence-transformers model.
+It embeds the same chunks and question with both models,
+then shows which chunks each model finds closest to the question.
+"""
 
 import sys
 import os
@@ -11,11 +14,12 @@ import numpy as np
 from src.embeddings.embedder import get_dashscope_embedder, get_local_embedder
 
 def cosine_similarity(vec_a, vec_b):
-    # measures how close two vectors point in the same direction (1 = identical, 0 = unrelated)
+    # measure how close two vectors point in the same direction (1 = identical, 0 = unrelated)
     vec_a, vec_b = np.array(vec_a), np.array(vec_b)
     return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))
 
 def compare_models(chunks: list[str], query: str):
+    # create both embedding models
     dashscope_embedder = get_dashscope_embedder()
     local_embedder = get_local_embedder()
 

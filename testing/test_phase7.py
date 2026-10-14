@@ -1,4 +1,7 @@
-# generate an answer for each sample question using the hybrid retrieval chunks, then check if it is grounded
+"""
+This file generates an answer for each sample question using the hybrid search chunks.
+Then it checks if each answer is grounded in those chunks.
+"""
 
 import sys
 import os
@@ -15,7 +18,7 @@ from src.retrieval.hybrid_ranker import hybrid_search
 from src.generation.generator import generate_answer
 from src.generation.grounding_check import check_grounding
 
-# reuse the same questions from test_phase5.py and test_phase6.py for direct comparison
+# use the same questions as test_phase5.py and test_phase6.py, so the results can be compared
 sample_questions = [
     "How many frames and scenes are in the OPV2V dataset?",
     "What are the three fusion strategies for vehicle to vehicle perception?",
@@ -26,6 +29,7 @@ sample_questions = [
 ]
 
 for query in sample_questions:
+    # find the best chunks, write an answer, then check the answer against the chunks
     chunks = hybrid_search(query, top_k=3)
     answer = generate_answer(query, chunks)
     grounding = check_grounding(answer, chunks)

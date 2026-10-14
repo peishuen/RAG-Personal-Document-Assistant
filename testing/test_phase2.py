@@ -1,4 +1,7 @@
-# test each loader against a sample document to confirm text is extracted correctly
+"""
+This file tests each loader (pdf, text and ocr) on a sample document.
+It checks that the text is read correctly.
+"""
 
 import sys
 import os

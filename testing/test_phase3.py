@@ -1,4 +1,7 @@
-# test chunking on each document type and check the chunk boundaries look reasonable
+"""
+This file tests chunking on each document type (pdf, text and scanned).
+It checks that the chunk sizes and boundaries look reasonable.
+"""
 
 import sys
 import os

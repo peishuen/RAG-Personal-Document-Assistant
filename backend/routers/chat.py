@@ -1,4 +1,9 @@
-# *** chat router: runs the retrieval + generation pipeline for one question and saves the turn ***
+"""
+This file handles the chat api.
+For one question, it rewrites the question, searches the documents,
+generates an answer, adds citations, and saves the turn to the session.
+The grounding check runs later in the background, so the answer is not delayed.
+"""
 import re
 
 from fastapi import APIRouter, BackgroundTasks
@@ -13,20 +18,21 @@ from src.session.session_store import load_session, save_session
 
 router = APIRouter()
 
-# matches the same "[Source 1]" / "[1]" markers citation_tracker looks for, just to decide
-# up front whether the answer cited anything at all worth fact-checking
+# match markers like "[Source 1]" or "[1]" to check if the answer cited anything
 CITATION_MARKER = re.compile(r"\[(?:Source )?\d+\]")
 
 
+# describe the data the frontend sends: the question and the files to search in
 class Question(BaseModel):
     question: str
     sources: list[str] = []
 
 
 def _run_grounding_check(session_id: str, turn_index: int, answer: str, chunks: list[dict]):
-    # runs after the response has already gone out, so grounding never blocks the answer
+    # run after the answer is already sent, so the user does not wait for it
     grounding = check_grounding(answer, chunks)
 
+    # add the result to the saved turn
     turns = load_session(session_id)
     turns[turn_index]["grounded"] = grounding["grounded"]
     turns[turn_index]["grounding_reason"] = grounding["reason"]
@@ -35,16 +41,20 @@ def _run_grounding_check(session_id: str, turn_index: int, answer: str, chunks: 
 
 @router.post("/{session_id}/messages")
 def ask_question(session_id: str, body: Question, background_tasks: BackgroundTasks):
-    # same pipeline app.py ran inline: rewrite -> retrieve -> generate -> cite -> persist
-    # grounding now happens after, in the background, instead of blocking the reply
+    # follow these steps: rewrite, search, generate, cite, save
+    # run the grounding check afterwards in the background
     prior_turns = load_session(session_id)
 
+    # rewrite the question so it makes sense alone
     standalone_query = rewrite_query(body.question, prior_turns)
+    # find the best 5 chunks
     chunks = cross_document_search(standalone_query, top_k=5, sources=body.sources)
+    # write the answer from those chunks
     answer = generate_answer(standalone_query, chunks, prior_turns)
+    # find which chunks the answer cited
     cited = build_cited_answer(answer, chunks)
 
-    # structured, not a pre-joined string, so the frontend can turn each [Source N] into a link
+    # keep citations as a list of fields, so the frontend can turn each [Source N] into a link
     citations = [
         {
             "number": chunks.index(chunk) + 1,
@@ -55,6 +65,7 @@ def ask_question(session_id: str, body: Question, background_tasks: BackgroundTa
         for chunk in cited["cited_chunks"]
     ]
 
+    # build this turn, and fill the grounding fields later
     turn = {
         "question": body.question,
         "answer": cited["answer"],
@@ -66,11 +77,12 @@ def ask_question(session_id: str, body: Question, background_tasks: BackgroundTa
     turns = prior_turns + [turn]
     save_session(session_id, turns)
 
-    # nothing to fact-check when the answer cites no source (eg. "I don't know") or
-    # retrieval came back empty, skip the grounding call entirely instead of running it anyway
+    # run the grounding check only when there are chunks and the answer cites a source
+    # skip it otherwise (for example, when the answer is "I don't know")
     if chunks and CITATION_MARKER.search(answer):
         background_tasks.add_task(_run_grounding_check, session_id, len(turns) - 1, answer, chunks)
     else:
+        # mark as not grounded and save the reason
         turn["grounded"] = False
         turn["grounding_reason"] = "no chunks were retrieved" if not chunks else "answer did not cite any source"
         save_session(session_id, turns)

@@ -1,4 +1,9 @@
-# turn chunk text into vectors using qwen's embedding model via dashscope
+"""
+This file turns chunk text into embeddings (lists of numbers that capture meaning).
+Similar text gets similar numbers, which lets us search by meaning.
+It uses qwen's embedding model through dashscope, and also has a local
+model option that needs no api key.
+"""
 
 import os
 import dashscope
@@ -10,32 +15,33 @@ def get_dashscope_embedder():
     dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
     dashscope.base_http_api_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
 
-    # text-embedding-v3 is not covered by this account's free tier, qwen3.7-text-embedding still has free quota
+    # use qwen3.7-text-embedding because it still has free quota on this account
     return DashScopeEmbeddings(
         model="qwen3.7-text-embedding",
         dashscope_api_key=os.getenv("DASHSCOPE_API_KEY")
     )
 
 def get_local_embedder():
-    # runs fully on machine, no api key or cost needed
+    # run the model on this machine, so no api key or cost is needed
     return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# qwen3.7-text-embedding rejects a single request with more than 20 texts
+# send at most 20 texts per request, because the model rejects bigger requests
 EMBED_BATCH_SIZE = 20
 
 def generate_embeddings(chunks: list[dict]) -> list[dict]:
-    # use the main embedding model (dashscope) to embed every chunk's text
+    # create the main embedding model (dashscope)
     embedder = get_dashscope_embedder()
 
+    # get the text of every chunk
     texts = [chunk["text"] for chunk in chunks]
 
-    # embed in batches, since the model rejects one big request over the batch limit
+    # embed the texts in small batches to stay under the limit
     vectors = []
     for i in range(0, len(texts), EMBED_BATCH_SIZE):
         batch = texts[i:i + EMBED_BATCH_SIZE]
         vectors.extend(embedder.embed_documents(batch))
 
-    # attach every vector back onto its chunk, keep the text and metadata intact
+    # add each vector back to its chunk and keep the text and metadata
     for chunk, vector in zip(chunks, vectors):
         chunk["embedding"] = vector
 

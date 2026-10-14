@@ -1,22 +1,35 @@
-// *** document panel: upload files, scope checkboxes, delete stored documents ***
-import { FileText, Trash2 } from "lucide-react";
+/*
+This file is the documents panel on the top left of the screen.
+The user can upload files, tick documents to limit the search, and delete documents.
+*/
+import { FileText, FolderOpen, Trash2, Upload } from "lucide-react";
 import { deleteDocument, uploadDocuments } from "../api.js";
 
+// pick an icon color by file type, so pdf and text files look different
+const fileIconColor = (type) => (type === "text" ? "text-slate-500" : "text-amber-600");
+
+// show only the file name, and hide the folder path
+const shortName = (source) => source.split("/").pop();
+
 export default function DocumentPanel({ documents, selectedSources, setSelectedSources, onChanged }) {
+  // upload the chosen files, then refresh the list
   const handleUpload = async (e) => {
     const files = e.target.files;
     if (!files.length) return;
     await uploadDocuments(files);
+    // clear the file input so the same file can be chosen again
     e.target.value = "";
     onChanged();
   };
 
+  // add the document to the search list if it is not there, or remove it if it is
   const toggleSource = (source) => {
     setSelectedSources((prev) =>
       prev.includes(source) ? prev.filter((s) => s !== source) : [...prev, source]
     );
   };
 
+  // delete the document, then refresh the list
   const removeDocument = async (source) => {
     await deleteDocument(source);
     onChanged();
@@ -24,42 +37,40 @@ export default function DocumentPanel({ documents, selectedSources, setSelectedS
 
   return (
     <div className="flex flex-col h-full gap-2">
-      <div className="flex items-center gap-2 text-teal-700 shrink-0">
-        <FileText size={18} />
-        <span className="font-semibold text-base">Documents</span>
+      <div className="flex items-center justify-between shrink-0">
+        <span className="font-medium text-[13px] text-slate-800">Documents</span>
+        {/* style the file input label as a button, and hide the real input */}
+        <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50">
+          <Upload size={14} /> Upload
+          <input type="file" multiple accept=".pdf,.txt" onChange={handleUpload} className="hidden" />
+        </label>
       </div>
-      <input
-        type="file"
-        multiple
-        accept=".pdf,.txt"
-        onChange={handleUpload}
-        className="shrink-0 text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 file:px-3 file:py-1.5 file:text-teal-700 file:font-medium hover:file:bg-teal-100"
-      />
+
+      {/* show the document list, or a message if there are none */}
       {documents.length > 0 ? (
         <>
-          <div className="shrink-0 text-xs text-slate-500">
-            check document(s) to limit search to them, leave all unchecked to search everything
+          <div className="shrink-0 text-[11px] text-slate-400">
+            tick documents to limit the search, or leave all unticked to search everything
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto border border-teal-100 rounded-lg bg-teal-50/60 divide-y divide-teal-100">
+          <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100">
             {documents.map((doc) => (
-              <div
-                key={doc.source}
-                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white transition-colors"
-              >
+              <div key={doc.source} className="group flex items-center gap-2 py-2 text-xs">
                 <input
                   type="checkbox"
                   checked={selectedSources.includes(doc.source)}
                   onChange={() => toggleSource(doc.source)}
-                  className="accent-teal-600"
+                  className="accent-teal-700"
                 />
-                <div className="flex-1">
-                  <div className="font-semibold text-slate-700">{doc.source}</div>
-                  <div className="text-slate-400">{doc.page_count} page(s), {doc.chunk_count} chunk(s)</div>
+                <FileText size={20} strokeWidth={1.5} className={`shrink-0 ${fileIconColor(doc.type)}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-slate-800 truncate" title={doc.source}>{shortName(doc.source)}</div>
+                  <div className="text-slate-400 text-[11px]">{doc.page_count} page(s), {doc.chunk_count} chunk(s)</div>
                 </div>
                 <button
                   onClick={() => removeDocument(doc.source)}
                   title="delete this document"
-                  className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50"
+                  aria-label="delete this document"
+                  className="p-1 rounded text-slate-300 hover:text-red-600 hover:bg-red-50 group-hover:text-slate-400"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -68,7 +79,11 @@ export default function DocumentPanel({ documents, selectedSources, setSelectedS
           </div>
         </>
       ) : (
-        <div className="text-xs text-slate-400">no documents uploaded yet</div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-1 text-center text-slate-400">
+          <FolderOpen size={24} strokeWidth={1.5} />
+          <div className="text-xs font-medium text-slate-500">No documents yet</div>
+          <div className="text-[11px]">upload a pdf or text file to get started</div>
+        </div>
       )}
     </div>
   );

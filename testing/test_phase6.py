@@ -1,5 +1,7 @@
-# run bm25, semantic search and hybrid search on the same questions
-# compares hybrid ranking against each method directly
+"""
+This file runs bm25, semantic and hybrid search on the same questions.
+It compares the hybrid ranking with each of the other two methods.
+"""
 
 import sys
 import os
@@ -16,7 +18,7 @@ from src.retrieval.bm25_retriever import bm25_search
 from src.retrieval.semantic_retriever import semantic_search
 from src.retrieval.hybrid_ranker import hybrid_search
 
-# reuse the same questions from test_phase5.py for direct comparison
+# use the same questions as test_phase5.py, so the results can be compared
 sample_questions = [
     "How many frames and scenes are in the OPV2V dataset?",
     "What are the three fusion strategies for vehicle to vehicle perception?",
@@ -26,6 +28,7 @@ sample_questions = [
     "Who is this project built for?"
 ]
 
+# print the top 3 results of each method for every question
 for query in sample_questions:
     print(f"\n=== query: {query} ===")
 

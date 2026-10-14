@@ -1,5 +1,7 @@
-# run bm25 and semantic search on the same sample questions
-# assumes the "documents" collection already has chunks stored in it from the phase 4 test
+"""
+This file runs bm25 and semantic search on the same sample questions.
+It needs the "documents" collection to already have chunks from the phase 4 test.
+"""
 
 import sys
 import os
@@ -15,7 +17,7 @@ load_dotenv()
 from src.retrieval.bm25_retriever import bm25_search
 from src.retrieval.semantic_retriever import semantic_search
 
-# a few sample questions to compare retrieval methods on
+# list a few sample questions to compare the search methods
 sample_questions = [
     "How many frames and scenes are in the OPV2V dataset?",          
     "What are the three fusion strategies for vehicle to vehicle perception?",  
@@ -25,6 +27,7 @@ sample_questions = [
     "Who is this project built for?"                                 
 ]
 
+# print the top 3 results of each method for every question
 for query in sample_questions:
     print(f"\n=== query: {query} ===")
 
