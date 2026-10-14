@@ -1,6 +1,7 @@
 # *** fastapi entrypoint: creates the app, enables cors for the react dev server, and mounts the routers ***
 import os
 import sys
+from contextlib import asynccontextmanager
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -13,10 +14,25 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 from backend.routers import documents, sessions, chat
+from src.ingestion.sample_docs import ingest_sample_docs
 
 APP_ACCESS_TOKEN = os.getenv("APP_ACCESS_TOKEN", "").strip()
 
-app = FastAPI(title="Querio API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # every fresh deploy starts with an empty chroma_db (it's gitignored, regenerated
+    # data) so seed the sample docs here if they aren't already stored. best-effort:
+    # a failure here (eg. missing api key) shouldn't stop the server from starting
+    try:
+        ingest_sample_docs()
+    except Exception as e:
+        print(f"sample doc ingestion skipped: {e}")
+
+    yield
+
+
+app = FastAPI(title="Querio API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
