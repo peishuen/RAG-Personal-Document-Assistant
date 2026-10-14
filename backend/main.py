@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 from backend.routers import documents, sessions, chat
-from src.ingestion.sample_docs import ingest_sample_docs
+from src.vectorstore.chroma_store import seed_if_empty
 
 APP_ACCESS_TOKEN = os.getenv("APP_ACCESS_TOKEN", "").strip()
 
@@ -22,12 +22,15 @@ APP_ACCESS_TOKEN = os.getenv("APP_ACCESS_TOKEN", "").strip()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # every fresh deploy starts with an empty chroma_db (it's gitignored, regenerated
-    # data) so seed the sample docs here if they aren't already stored. best-effort:
-    # a failure here (eg. missing api key) shouldn't stop the server from starting
+    # data) so copy in the prebuilt seed if nothing's there yet. this is a plain file
+    # copy, not live ocr/embedding — running that pipeline at startup is what caused an
+    # oom on render's 512mb free tier. best-effort: a failure here shouldn't stop the
+    # server from starting
     try:
-        ingest_sample_docs()
+        if seed_if_empty():
+            print("seeded data/chroma_db from data/seed_chroma_db")
     except Exception as e:
-        print(f"sample doc ingestion skipped: {e}")
+        print(f"sample doc seeding skipped: {e}")
 
     yield
 

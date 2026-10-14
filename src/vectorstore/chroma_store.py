@@ -1,10 +1,30 @@
 # store chunk embeddings and metadata in chromadb so they can be searched later
 # uses a persistent local store, so data survives between runs
 
+import os
+import shutil
 import chromadb
 
 # folder where chromadb saves its data on disk
 PERSIST_DIR = "data/chroma_db"
+
+# prebuilt, committed db containing only the sample docs (see testing/build_seed_db.py).
+# copied into PERSIST_DIR on startup if it's empty, so a fresh container gets the sample
+# docs without render having to run ocr/embedding itself at runtime (that's what caused
+# an out-of-memory crash on the 512mb free tier)
+SEED_DIR = "data/seed_chroma_db"
+
+
+def seed_if_empty() -> bool:
+    os.makedirs(PERSIST_DIR, exist_ok=True)
+    if os.listdir(PERSIST_DIR):
+        return False  # already has data — either a prior seed or real uploads, leave it
+
+    if not os.path.isdir(SEED_DIR) or not os.listdir(SEED_DIR):
+        return False  # no seed shipped in this image, nothing to do
+
+    shutil.copytree(SEED_DIR, PERSIST_DIR, dirs_exist_ok=True)
+    return True
 
 # cache the client so it only opens once per process
 # opening a new client every call makes chromadb replay its unsaved write log each time, which is slow and noisy

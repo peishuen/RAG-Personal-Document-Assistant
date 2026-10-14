@@ -3,14 +3,19 @@
 # pages with selectable text go through pymupdf4llm first, which detects multi-column
 # layouts (common in research papers) automatically and reads them in the correct order
 
+import platform
+import shutil
 import pymupdf4llm
 import pytesseract
 from PIL import Image
 from pypdf import PdfReader
 import io
 
-# point pytesseract to the tesseract executable on windows
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# on windows there's no tesseract on PATH, so point at the default install location.
+# on linux (render, docker) `apt-get install tesseract-ocr` puts it on PATH already,
+# so pytesseract finds it on its own — leaving the windows path set there would break it
+if platform.system() == "Windows" and shutil.which("tesseract") is None:
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def _ocr_image(image):
     # default page segmentation assumes a uniform block of text, which
