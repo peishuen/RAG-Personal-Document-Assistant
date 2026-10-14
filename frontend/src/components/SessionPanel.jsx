@@ -2,7 +2,7 @@
 This file is the sessions panel on the bottom left of the screen.
 The user can start a new chat, open a saved chat, or delete one.
 */
-import { MessageSquare, MessagesSquare, Plus, Trash2 } from "lucide-react";
+import { History, MessageSquare, MessagesSquare, Plus, Trash2 } from "lucide-react";
 import { deleteSession } from "../api.js";
 
 function relativeTime(timestamp) {
@@ -24,11 +24,16 @@ export default function SessionPanel({ sessions, activeSessionId, onNewChat, onR
 
   return (
     <div className="flex flex-col h-full gap-2">
-      <div className="flex items-center justify-between shrink-0">
-        <span className="font-medium text-[13px] text-slate-800">Sessions</span>
+      <div className="flex items-center gap-2 shrink-0">
+        {/* show an icon chip, the title, and how many chats there are */}
+        <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-100 text-teal-700 flex items-center justify-center">
+          <History size={15} />
+        </span>
+        <span className="font-medium text-sm text-slate-800">Chat history</span>
+        <span className="bg-slate-100 text-slate-600 rounded-full px-2 text-[11px]">{sessions.length}</span>
         <button
           onClick={onNewChat}
-          className="inline-flex items-center gap-1 rounded-md bg-teal-700 text-white px-2 py-1 text-xs hover:bg-teal-800"
+          className="ml-auto inline-flex items-center gap-1 rounded-md bg-teal-700 text-white px-2 py-1 text-xs hover:bg-teal-800"
         >
           <Plus size={14} /> New chat
         </button>

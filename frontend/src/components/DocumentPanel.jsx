@@ -2,7 +2,7 @@
 This file is the documents panel on the top left of the screen.
 The user can upload files, tick documents to limit the search, and delete documents.
 */
-import { FileText, FolderOpen, Trash2, Upload } from "lucide-react";
+import { FileText, Files, FolderOpen, Trash2, Upload } from "lucide-react";
 import { deleteDocument, uploadDocuments } from "../api.js";
 
 // pick an icon color by file type, so pdf and text files look different
@@ -37,10 +37,15 @@ export default function DocumentPanel({ documents, selectedSources, setSelectedS
 
   return (
     <div className="flex flex-col h-full gap-2">
-      <div className="flex items-center justify-between shrink-0">
-        <span className="font-medium text-[13px] text-slate-800">Documents</span>
+      <div className="flex items-center gap-2 shrink-0">
+        {/* show an icon chip, the title, and how many documents there are */}
+        <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-100 text-teal-700 flex items-center justify-center">
+          <Files size={15} />
+        </span>
+        <span className="font-medium text-sm text-slate-800">Documents</span>
+        <span className="bg-slate-100 text-slate-600 rounded-full px-2 text-[11px]">{documents.length}</span>
         {/* style the file input label as a button, and hide the real input */}
-        <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50">
+        <label className="ml-auto inline-flex items-center gap-1 cursor-pointer rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50">
           <Upload size={14} /> Upload
           <input type="file" multiple accept=".pdf,.txt" onChange={handleUpload} className="hidden" />
         </label>

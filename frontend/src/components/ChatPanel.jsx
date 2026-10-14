@@ -158,8 +158,9 @@ export default function ChatPanel({ hasDocuments, sessionId, selectedSources, tu
         {/* show suggestions when the chat is empty, and show the turns otherwise */}
         {turns.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-5">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-              <Sparkles size={20} />
+            {/* use a solid teal tile with a white icon, so it stands out on the light page */}
+            <div className="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-sm">
+              <Sparkles size={22} />
             </div>
             <div>
               <h3 className="text-lg font-medium text-slate-800">What would you like to know?</h3>
