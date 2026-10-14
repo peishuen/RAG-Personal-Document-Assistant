@@ -32,7 +32,8 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 # Ensure data directories exist and have proper write permissions
 RUN mkdir -p data/uploads data/sessions data/chroma_db && chmod -R 777 data
 
-# Hugging Face Spaces uses port 7860
-EXPOSE 7860
+# Dynamic port support (Render uses $PORT, defaults to 10000)
+ENV PORT=10000
+EXPOSE 10000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
