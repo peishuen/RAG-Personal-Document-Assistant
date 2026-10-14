@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+.git
+.env
+.vscode
+.claude
+frontend/node_modules
+frontend/dist
+testing
+evaluation

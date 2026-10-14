@@ -1,8 +1,10 @@
-# combine bm25 and semantic results, then rerank the top matches with a cross-encoder
+# combine bm25 and semantic results, then rerank the top matches with qwen3-rerank via dashscope
 # fuse by rank position, not raw score, since bm25 and semantic scores are not comparable
 
+import os
 from concurrent.futures import ThreadPoolExecutor
-from sentence_transformers import CrossEncoder
+import dashscope
+from dashscope import TextReRank
 from src.retrieval.bm25_retriever import bm25_search
 from src.retrieval.semantic_retriever import semantic_search
 
@@ -43,30 +45,41 @@ def reciprocal_rank_fusion(bm25_results: list[dict], semantic_results: list[dict
 
     return fused_results
 
-# cache the loaded model at module level, so it's read from disk once per process
-# instead of on every single search
-_reranker = None
-
-def get_reranker():
-    # load a small pretrained cross-encoder for scoring query and chunk together
-    global _reranker
-    if _reranker is None:
-        _reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    return _reranker
-
 def rerank(query: str, results: list[dict], top_k: int = 5) -> list[dict]:
-    reranker = get_reranker()
+    if not results:
+        return []
 
-    # score each chunk against the query directly, slower but more accurate
-    pairs = [[query, result["text"]] for result in results]
-    scores = reranker.predict(pairs)
+    dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
+    dashscope.base_http_api_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
 
-    # attach rerank scores and sort, highest first
-    for result, score in zip(results, scores):
-        result["rerank_score"] = float(score)
+    documents = [r["text"] for r in results]
+    try:
+        resp = TextReRank.call(
+            model="qwen3-rerank",
+            query=query,
+            documents=documents,
+            top_n=min(top_k, len(documents)),
+            return_documents=False
+        )
 
-    reranked = sorted(results, key=lambda r: r["rerank_score"], reverse=True)
-    return reranked[:top_k]
+        if resp.status_code == 200 and resp.output and "results" in resp.output:
+            reranked = []
+            for item in resp.output["results"]:
+                orig_index = item["index"]
+                chunk = dict(results[orig_index])
+                chunk["rerank_score"] = float(item["relevance_score"])
+                reranked.append(chunk)
+            return reranked
+        else:
+            error_msg = getattr(resp, "message", resp.status_code)
+            print(f"Warning: qwen3-rerank call failed ({error_msg}), falling back to fusion order")
+    except Exception as e:
+        print(f"Warning: qwen3-rerank exception ({e}), falling back to fusion order")
+
+    # fallback to reciprocal rank fusion ordering if API call fails
+    for r in results:
+        r["rerank_score"] = float(r.get("score", 0.0))
+    return results[:top_k]
 
 def hybrid_search(query: str, collection_name: str = "documents", top_k: int = 5, fusion_k: int = 20, sources: list[str] | None = None) -> list[dict]:
     # bm25 is local cpu work and semantic search is a network call, run them side by side
