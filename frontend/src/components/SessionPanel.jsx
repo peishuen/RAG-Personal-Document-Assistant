@@ -33,7 +33,7 @@ export default function SessionPanel({ sessions, activeSessionId, onNewChat, onR
         <span className="bg-slate-100 text-slate-600 rounded-full px-2 text-[11px]">{sessions.length}</span>
         <button
           onClick={onNewChat}
-          className="ml-auto inline-flex items-center gap-1 rounded-md bg-teal-700 text-white px-2 py-1 text-xs hover:bg-teal-800"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-teal-700 text-white px-2.5 py-1.5 text-xs hover:bg-teal-800"
         >
           <Plus size={14} /> New chat
         </button>

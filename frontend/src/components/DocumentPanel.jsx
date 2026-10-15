@@ -42,7 +42,7 @@ export default function DocumentPanel({ documents, selectedSources, setSelectedS
         {/* open the upload pop-up box */}
         <button
           onClick={() => setUploadOpen(true)}
-          className="ml-auto inline-flex items-center gap-1 rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-teal-200 px-2.5 py-1.5 text-xs text-teal-700 hover:bg-teal-50"
         >
           <Upload size={14} /> Upload
         </button>
