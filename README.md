@@ -1,200 +1,113 @@
 # Personal Document Assistant (RAG)
 
-A retrieval-augmented generation system that lets a user upload their own documents and ask questions about them in plain language. Instead of scrolling through a PDF or a set of notes, the user gets a direct answer with the exact source cited.
+Upload your own documents and ask questions in plain language. You get a direct answer with the exact source cited.
 
-**Live demo:** [peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/) (the original Streamlit interface). The newer FastAPI + React interface is deployed on Render, see [Deployment](#deployment).
-
-## Overview
-
-This project demonstrates a full RAG pipeline built with LangChain and ChromaDB. It is designed to handle multiple document formats, compare retrieval methods, and reduce hallucination by grounding every answer in the retrieved source text.
-
-The project is intentionally domain agnostic. The same pipeline works whether the uploaded document is a clean PDF, a lecture note, or a scanned report.
+**Live demo:** [rag-personal-document-assistant.onrender.com](https://rag-personal-document-assistant.onrender.com/) (FastAPI + React, hosted on Render)
+**Original Streamlit version:** [streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/)
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| Multi-format ingestion | Accepts PDFs, plain text notes, and scanned reports as input |
-| Adaptive chunking | Splits documents into chunks with a strategy that adjusts to document type and structure |
-| Hybrid retrieval with reranking | Retrieves relevant chunks using both BM25 (keyword based) and semantic search (embedding based), combines the two into a single ranked list, and reranks the top results |
-| Grounding check | Verifies that a generated answer is actually supported by the retrieved chunks before returning it |
-| Retrieval evaluation | Measures retrieval quality using Precision@K and Recall@K for BM25, semantic search, and the combined hybrid ranking |
-| Source citation | Every answer points back to the exact chunk or page it came from |
-| Batch upload and cross-document Q&A | Supports uploading multiple documents at once and answering questions that draw from across all of them |
-| Chat sessions | Saves each conversation so it can be resumed later, and rewrites follow-up questions so they make sense on their own |
-| Access key | Optional private access: the API can require a key, and a magic link (`?access_token=...`) signs the user in |
+- **Multi-format ingestion:** PDFs, text files, and scanned reports (OCR is used only when a page has no selectable text)
+- **Adaptive chunking:** chunk size and overlap change with the document type
+- **Hybrid retrieval:** BM25 (keywords) plus semantic search (embeddings), merged by rank, then reranked with `qwen3-rerank`
+- **Cross-document Q&A:** upload many files at once, and optionally limit a question to chosen files
+- **Grounding check:** an LLM fact-checks each answer against the retrieved chunks
+- **Source citation:** every `[Source N]` in an answer links to the file, page and chunk it came from
+- **Chat sessions:** conversations are saved and can be resumed, and follow-up questions are rewritten to stand alone
+- **Optional access key:** protect the API with a token, or sign in with a magic link
+- **Evaluation:** Precision@K, Recall@K and answer correctness for BM25, semantic and hybrid search
 
-## Tech Stack
+## Tech stack
 
-| Component | Role |
-|---|---|
-| LangChain | Orchestrates the retrieval and generation pipeline |
-| ChromaDB | Local vector store for embedding storage and similarity search |
-| BM25 | Sparse keyword based retrieval, used for comparison against semantic search |
-| Qwen embeddings (DashScope) | Converts document chunks and queries into vectors for semantic search, via Alibaba's DashScope API |
-| OCR (Tesseract) | Extracts text from scanned reports before chunking, used only when the uploaded document has no selectable text |
-| Qwen reranker (DashScope) | Reranks the combined BM25 and semantic results with `qwen3-rerank` |
-| Qwen LLM (DashScope) | Generates the answer, rewrites follow-up questions, and checks grounding, via LangChain's `ChatOpenAI` wrapper on DashScope's OpenAI-compatible endpoint |
-| FastAPI | Serves the retrieval and generation pipeline as REST endpoints for the React frontend |
-| React + Tailwind CSS | The current web interface: document upload, session history, and chat with clickable source citations |
-| Docker + Render | The Dockerfile builds the React app and runs FastAPI, which also serves the built frontend. This is how the app is deployed on Render |
-| Streamlit | The original interface (`app.py`), still in the repo and still deployed at the Streamlit demo link above |
-
-## Project Structure
-
-```
-RAG-Personal-Document-Assistant/
-├── README.md
-├── tasks.md
-├── requirements.txt
-├── runtime.txt                   # pins the Python version used on Streamlit Community Cloud
-├── Dockerfile                    # builds the react app, then runs fastapi (used by Render)
-├── .dockerignore
-├── .env                          # local only, holds DASHSCOPE_API_KEY and friends, never committed
-├── app.py                        # original streamlit entry point, run with `streamlit run app.py`
-│
-├── backend/                      # fastapi backend for the react frontend, run with `uvicorn backend.main:app`
-│   ├── main.py                   # app setup, cors, access key check, seeds the db on startup, serves the built frontend
-│   └── routers/
-│       ├── documents.py          # upload, list, delete documents
-│       ├── sessions.py           # create, list, resume, delete chat sessions
-│       └── chat.py               # runs the retrieval + generation pipeline for one question
-│
-├── frontend/                     # react + tailwind interface, run with `npm run dev` inside this folder
-│   ├── index.html
-│   └── src/
-│       ├── App.jsx                # layout: documents + sessions on the left, chat on the right
-│       ├── api.js                 # fetch wrappers for the backend's REST endpoints
-│       ├── pendingRequests.js     # remembers questions still waiting for an answer, per session
-│       └── components/
-│           ├── DocumentPanel.jsx
-│           ├── SessionPanel.jsx
-│           └── ChatPanel.jsx
-│
-├── data/
-│   ├── sample_docs/               # pdf, text, and scanned report samples used for testing
-│   ├── seed_chroma_db/            # prebuilt db with only the sample docs, committed and shipped in the docker image
-│   ├── uploads/                   # documents uploaded through either frontend
-│   ├── sessions/                  # saved chat sessions, one json file each
-│   └── chroma_db/                 # chromadb's live store, copied from seed_chroma_db on first start if empty
-│
-├── src/
-│   ├── ingestion/
-│   │   ├── pdf_loader.py
-│   │   ├── text_loader.py
-│   │   ├── ocr_loader.py
-│   │   ├── batch_loader.py        # picks the right loader by file extension, loads multiple files at once
-│   │   └── sample_docs.py         # loads the sample docs into the database
-│   │
-│   ├── chunking/
-│   │   └── chunker.py
-│   │
-│   ├── embeddings/
-│   │   └── embedder.py
-│   │
-│   ├── vectorstore/
-│   │   └── chroma_store.py
-│   │
-│   ├── retrieval/
-│   │   ├── bm25_retriever.py
-│   │   ├── semantic_retriever.py
-│   │   ├── hybrid_ranker.py
-│   │   └── cross_document.py      # merges retrieval results across multiple uploaded documents
-│   │
-│   ├── generation/
-│   │   ├── llm_client.py          # shared qwen client used by the files below
-│   │   ├── prompt_templates.py
-│   │   ├── query_rewriter.py      # turns a follow-up question into a standalone one
-│   │   ├── grounding_check.py
-│   │   └── generator.py
-│   │
-│   ├── citation/
-│   │   └── citation_tracker.py
-│   │
-│   └── session/
-│       └── session_store.py       # saves and loads chat sessions as json files
-│
-├── evaluation/
-│   ├── qa_dataset.json           # labeled question and answer pairs, with ground truth chunks
-│   ├── evaluation.py             # computes precision@k, recall@k, and answer correctness
-│   ├── embedding_comparison.py   # compares two embedding models on the same document set
-│   └── results/
-│       ├── evaluation_report.md
-│       └── detailed_results.json # per-question retrieval and generation results
-│
-├── assets/
-│   └── workflow-diagram.svg
-│
-└── testing/
-    ├── build_seed_db.py          # rebuilds data/seed_chroma_db from the sample docs
-    ├── ingest_sample_docs.py     # loads, chunks, embeds and stores the sample docs into chromadb
-    ├── test_embedding_comparison.py
-    └── test_phase1.py ... test_phase10.py   # one script per phase, run manually during development
-```
+| Part | Tool | Model or note |
+|---|---|---|
+| Pipeline | LangChain | |
+| Vector store | ChromaDB | cosine similarity |
+| Keyword search | BM25 (`rank_bm25`) | |
+| Embeddings | Qwen via Alibaba DashScope | `qwen3.7-text-embedding` |
+| Reranker | Qwen via DashScope | `qwen3-rerank` |
+| LLM | Qwen via DashScope | `qwen3.8-flash` |
+| OCR | Tesseract | used only for pages with no text |
+| Backend | FastAPI | |
+| Frontend | React, Tailwind CSS, Vite | |
+| Deployment | Docker on Render | |
+| Original UI | Streamlit (`app.py`) | |
 
 ## Workflow
 
 ![RAG Pipeline Workflow](assets/workflow-diagram.svg)
 
-| Step | Description |
-|------|-------------|
-| Ingest | The user uploads one or more documents |
-| Chunk | Documents are split into smaller pieces, with chunk size and overlap adjusted based on document type |
-| Embed & Store | Each chunk is converted into a vector and stored in ChromaDB |
-| Retrieve | A user question triggers retrieval using both BM25 and semantic search |
-| Hybrid Rank & Rerank | The two result sets are combined into a single ranked list, and the top results are reranked |
-| Ground & Generate | The retrieved chunks are passed to the LLM along with the question, and the generated answer is checked against the retrieved text before being returned |
-| Cite | The final answer is returned along with the source chunk or page it was grounded in |
+1. **Ingest:** load and read the uploaded files
+2. **Chunk:** split pages into smaller pieces
+3. **Embed and store:** turn chunks into vectors and save them in ChromaDB
+4. **Retrieve:** run BM25 and semantic search on the question
+5. **Rank:** merge the two lists and rerank the top results
+6. **Generate and ground:** the LLM answers from the chunks, then the answer is fact-checked
+7. **Cite:** return the answer with its sources
 
-## Evaluation
+## Project structure
 
-Retrieval quality is measured with a small labeled question and answer set, built as follows:
-
-- 3 to 5 documents are selected, covering the different formats the project supports (a clean PDF, a lecture note, a scanned report)
-- For each document, 8 to 10 question and answer pairs are written based on content known to be in that document
-- For each question, the chunk or chunks that contain the correct answer are marked as ground truth
-- This gives a labeled set of roughly 30 to 50 question and answer pairs across all documents
-
-Using this labeled set, three things are measured:
-
-| What is measured | Description |
-|---|---|
-| Retrieval accuracy | Precision@K and Recall@K, calculated separately for BM25, semantic search, and the combined hybrid ranking, so the improvement from combining the two methods can be shown with actual numbers |
-| Answer correctness | Whether the generated answer actually matches the expected answer, checked separately from retrieval accuracy since a correct retrieval does not always lead to a correct generated answer |
-| Embedding model comparison | Two embedding models are run on the same document set, and differences in retrieval results are compared and recorded |
+```
+├── backend/            # fastapi app: main.py + routers (documents, sessions, chat)
+├── frontend/           # react app: App.jsx, api.js, components (Document, Session, Chat panels)
+├── src/                # the rag pipeline
+│   ├── ingestion/      # pdf, text and ocr loaders, batch loader, sample docs
+│   ├── chunking/
+│   ├── embeddings/
+│   ├── vectorstore/    # chromadb helpers and seeding
+│   ├── retrieval/      # bm25, semantic, hybrid ranker, cross-document search
+│   ├── generation/     # llm client, prompts, query rewriter, grounding check, generator
+│   ├── citation/
+│   └── session/        # saves chats as json files
+├── data/
+│   ├── sample_docs/    # 3 sample files
+│   ├── seed_chroma_db/ # prebuilt db with only the sample docs (shipped in the image)
+│   ├── chroma_db/      # live db (created at runtime)
+│   ├── uploads/        # uploaded files
+│   └── sessions/       # saved chats
+├── evaluation/         # labeled qa set, evaluation scripts, results
+├── testing/            # phase test scripts, build_seed_db.py, ingest_sample_docs.py
+├── app.py              # original streamlit app
+├── Dockerfile          # builds the react app, then runs fastapi
+└── requirements.txt
+```
 
 ## Setup
 
-The easiest way to try this project is the live demo linked above, no setup needed. To run it locally instead (you also need Tesseract installed if you want to read scanned PDFs):
+Easiest: use the [live demo](https://rag-personal-document-assistant.onrender.com/). To run locally, you need:
+
+| Requirement | Needed for |
+|---|---|
+| Python 3.11 | backend and pipeline |
+| Node.js | React frontend |
+| DashScope API key | embeddings, reranking and answers |
+| Tesseract (on PATH, or at the default Windows install path) | scanned PDFs only |
 
 ```bash
-# clone the repository
 git clone https://github.com/peishuen/RAG-Personal-Document-Assistant.git
 cd RAG-Personal-Document-Assistant
-
-# create and activate a python 3.11 environment (conda shown, venv works too)
 conda create -n rag-env python=3.11
 conda activate rag-env
-
-# install dependencies
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the project root with your DashScope credentials (this project uses Qwen models through Alibaba's DashScope API, not OpenAI):
+Create a `.env` file in the project root:
 
 ```
 DASHSCOPE_API_KEY=your-key-here
-DASHSCOPE_API_REGION=int
 DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
 DASHSCOPE_OPENAI_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 APP_ACCESS_TOKEN=
 ```
 
-`DASHSCOPE_OPENAI_BASE_URL` is used by the language model. `APP_ACCESS_TOKEN` is optional: leave it empty for no login, or set a secret to protect the API (see [Deployment](#deployment)).
+| Variable | Purpose |
+|---|---|
+| `DASHSCOPE_API_KEY` | your DashScope key (required) |
+| `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings and reranking |
+| `DASHSCOPE_OPENAI_BASE_URL` | endpoint for the language model |
+| `APP_ACCESS_TOKEN` | optional, leave empty for no login |
 
-Then run the app. There are two interfaces available, both share the same pipeline and the same `data/chroma_db` store:
-
-**FastAPI + React (current)**
+Run the app:
 
 ```bash
 # backend, from the project root
@@ -206,48 +119,48 @@ npm install
 npm run dev
 ```
 
-This opens the app at `http://localhost:5173`.
+| Interface | Command | Address |
+|---|---|---|
+| Backend (FastAPI) | `uvicorn backend.main:app --reload --port 8000` | `http://localhost:8000` |
+| Frontend (React) | `npm run dev` in `frontend/` | `http://localhost:5173` (open this one) |
+| Original Streamlit app | `streamlit run app.py` | `http://localhost:8501` (also needs `.env`) |
 
-**Streamlit (original, still works)**
+On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, so the sample docs are ready to query. If you change the sample docs, run `python testing/build_seed_db.py` and commit the new folder.
 
-```bash
-streamlit run app.py
-```
+## Deployment (Render)
 
-This opens the app at `http://localhost:8501`.
-
-The FastAPI backend copies the prebuilt sample database from `data/seed_chroma_db` into `data/chroma_db` on its first start, so you can ask questions about the three sample documents right away. If you change the sample documents, run `python testing/build_seed_db.py` and commit the new `data/seed_chroma_db` folder.
-
-## Deployment
-
-The FastAPI + React app runs on Render as a Docker web service, built from the `Dockerfile` in the project root.
-
-| Setting | Value |
+| Topic | Detail |
 |---|---|
-| Environment | Docker (Render finds the `Dockerfile` by itself) |
-| Environment variables | `DASHSCOPE_API_KEY`, `DASHSCOPE_HTTP_BASE_URL`, `DASHSCOPE_OPENAI_BASE_URL`, and optionally `APP_ACCESS_TOKEN` |
-| Port | The Dockerfile uses Render's `$PORT` and falls back to 10000 |
-
-Things to know:
-
-- **Seeding:** a fresh deploy starts with an empty `data/chroma_db`, so the backend copies the prebuilt `data/seed_chroma_db` on startup. This avoids running OCR and embedding on Render, which ran out of memory on the 512 MB free tier.
-- **Temporary storage:** uploaded files, chat sessions and new embeddings are lost on each redeploy or restart, unless you attach a persistent disk to the service.
-- **Private access:** if `APP_ACCESS_TOKEN` is set, every `/api/` call needs that key. Open the app with `https://<your-app>.onrender.com/?access_token=YOUR_KEY` to sign in once, or type the key into the login screen.
-- **Cold starts:** the free tier sleeps when idle, so the first request after a break can take a while.
+| Type | Docker web service, built from the `Dockerfile` |
+| Env vars | the same four variables as the `.env` table above |
+| Port | uses Render's `$PORT`, default 10000 |
+| Seeding | a fresh deploy copies the prebuilt sample db instead of running OCR and embedding, which ran out of memory on the 512 MB free tier |
+| Storage | uploads, sessions and new embeddings are lost on redeploy unless you attach a persistent disk |
+| Private access | if `APP_ACCESS_TOKEN` is set, open `https://rag-personal-document-assistant.onrender.com/?access_token=YOUR_KEY`, or type the key on the login screen |
+| Cold starts | the free tier sleeps when idle, so the first request can be slow |
 
 ## Usage
 
-1. Upload one or more documents (PDF, text file, or scanned report)
-2. Ask a question about its content, or a question that spans multiple uploaded documents
-3. Review the answer along with the cited source, each `[Source N]` in the answer links to its entry in the source list
-4. Optionally, scope a question to specific documents using the checkboxes next to each uploaded file
+1. Upload one or more documents (PDF or text)
+2. Optionally tick files to limit the search to them
+3. Ask a question, or start from a suggestion
+4. Read the answer, check the grounding badge, and click a `[Source N]` badge to see where it came from
 
-## Future Improvements
+## Evaluation
 
-- Add latency and cost benchmarking for larger document sets
+A labeled question set (`evaluation/qa_dataset.json`) marks the chunks that contain each correct answer. Run `python evaluation/evaluation.py` to measure:
+
+- **Retrieval:** Precision@K and Recall@K for BM25, semantic and hybrid search
+- **Answers:** whether the generated answer is close in meaning to the expected one
+- **Embeddings:** `evaluation/embedding_comparison.py` compares DashScope with a local model
+
+Results are saved in `evaluation/results/`.
+
+## Future improvements
+
+- Benchmark latency and cost on larger document sets
 - Keep uploads and sessions after a redeploy, for example with a persistent disk or a hosted database
 
 ## Author
 
-Pei Shuen
-[GitHub](https://github.com/peishuen)
+Pei Shuen · [GitHub](https://github.com/peishuen)
