@@ -19,6 +19,10 @@ export default function SessionPanel({ sessions, activeSessionId, onNewChat, onR
   // delete the session, then refresh the list
   const removeSession = async (id) => {
     await deleteSession(id);
+
+    // go to a new chat if the deleted session is the one open now, so its old messages do not stay on screen
+    if (id === activeSessionId) onNewChat();
+
     onChanged();
   };
 
