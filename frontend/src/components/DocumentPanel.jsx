@@ -1,9 +1,11 @@
 /*
 This file is the documents panel on the top left of the screen.
-The user can upload files, tick documents to limit the search, and delete documents.
+The user can open the upload box, tick documents to limit the search, and delete documents.
 */
+import { useState } from "react";
 import { FileText, Files, FolderOpen, Trash2, Upload } from "lucide-react";
-import { deleteDocument, uploadDocuments } from "../api.js";
+import { deleteDocument } from "../api.js";
+import UploadModal from "./UploadModal.jsx";
 
 // pick an icon color by file type, so pdf and text files look different
 const fileIconColor = (type) => (type === "text" ? "text-slate-500" : "text-amber-600");
@@ -12,15 +14,8 @@ const fileIconColor = (type) => (type === "text" ? "text-slate-500" : "text-ambe
 const shortName = (source) => source.split("/").pop();
 
 export default function DocumentPanel({ documents, selectedSources, setSelectedSources, onChanged }) {
-  // upload the chosen files, then refresh the list
-  const handleUpload = async (e) => {
-    const files = e.target.files;
-    if (!files.length) return;
-    await uploadDocuments(files);
-    // clear the file input so the same file can be chosen again
-    e.target.value = "";
-    onChanged();
-  };
+  // track if the upload pop-up box is open
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   // add the document to the search list if it is not there, or remove it if it is
   const toggleSource = (source) => {
@@ -44,12 +39,17 @@ export default function DocumentPanel({ documents, selectedSources, setSelectedS
         </span>
         <span className="font-medium text-sm text-slate-800">Documents</span>
         <span className="bg-slate-100 text-slate-600 rounded-full px-2 text-[11px]">{documents.length}</span>
-        {/* style the file input label as a button, and hide the real input */}
-        <label className="ml-auto inline-flex items-center gap-1 cursor-pointer rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50">
+        {/* open the upload pop-up box */}
+        <button
+          onClick={() => setUploadOpen(true)}
+          className="ml-auto inline-flex items-center gap-1 rounded-md border border-teal-200 px-2 py-1 text-xs text-teal-700 hover:bg-teal-50"
+        >
           <Upload size={14} /> Upload
-          <input type="file" multiple accept=".pdf,.txt" onChange={handleUpload} className="hidden" />
-        </label>
+        </button>
       </div>
+
+      {/* show the upload pop-up box, and refresh the list when files are added */}
+      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={onChanged} />
 
       {/* show the document list, or a message if there are none */}
       {documents.length > 0 ? (
