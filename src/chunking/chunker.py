@@ -7,7 +7,18 @@ It tries to split at paragraphs first, then sentences, then words, so each
 chunk stays easy to read.
 """
 
+import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# set whether each chunk starts with a short header naming its file and page
+# this helps search find chunks like a title slide, whose own text never names the document
+# it raised MRR@5 from 0.864 to 0.889 in the ingestion comparison, a small gain (see evaluation/results/evaluation_report.md)
+ADD_CONTEXT_HEADER = True
+
+def build_header(metadata: dict) -> str:
+    # turn "data/sample_docs/Final-Presentation-Slide.pdf" into "Final Presentation Slide"
+    name = os.path.splitext(os.path.basename(metadata["source"]))[0].replace("-", " ").replace("_", " ")
+    return f"Source: {name}, page {metadata['page']}\n"
 
 # set the chunk size and overlap for each document type
 # use bigger chunks with less overlap for pdf, because the text is usually clean
@@ -44,6 +55,10 @@ def chunk_pages(pages: list[dict]) -> list[dict]:
 
         # copy the page info onto every chunk to keep track of the source
         for i, chunk_text in enumerate(page_chunks):
+            # add the header in front of the text, when it is switched on
+            if ADD_CONTEXT_HEADER:
+                chunk_text = build_header(page["metadata"]) + chunk_text
+
             chunks.append({
                 "text": chunk_text,
                 "metadata": {

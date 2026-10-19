@@ -1,146 +1,55 @@
 """
 This file tests how good the search and the answers are, using a labeled question set.
-It computes precision@k and recall@k for bm25, semantic and hybrid search,
-and checks if the generated answers are close to the expected answers.
-The results are printed and saved to evaluation/results.
+Retrieval (bm25, semantic and their rank fusion) is scored on every answerable question with
+precision, recall and mrr at 5, each with a 95% confidence interval.
+Answers are written from the top 5 chunks and graded by an llm judge (correct, partial or wrong)
+on an evenly spaced subset of the questions, because that part costs the most tokens.
+It runs on the separate evaluation database (data/eval_chroma_db), built by build_eval_db.py.
+Run it like this: python evaluation/evaluation.py --answers 30
 """
 
-import sys
-import os
+import argparse
 import json
-import numpy as np
+import os
 
-# print text in utf-8, so special characters show correctly
-sys.stdout.reconfigure(encoding="utf-8")
+import eval_env  # sets up the evaluation database and imports, so keep it before the src imports
+from judge import grade_answers
+from retrieval_metrics import cell, evaluate_collection, load_questions, pick_subset
 
-# add the project root to the path so src can be found
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+RESULTS_DIR = "evaluation/results"
 
-# load the secret keys from the .env file
-from dotenv import load_dotenv
-load_dotenv()
-
-from src.retrieval.bm25_retriever import bm25_search
-from src.retrieval.semantic_retriever import semantic_search
-from src.retrieval.hybrid_ranker import hybrid_search, build_chunk_id
-from src.generation.generator import generate_answer
-from src.embeddings.embedder import get_dashscope_embedder
-
-# set how many chunks each search returns
-TOP_K = 5
-
-# treat an answer as wrong when its similarity to the expected answer is below this number
-CORRECTNESS_THRESHOLD = 0.75
-
-# measure how close two vectors point in the same direction, 1 means identical and 0 means unrelated
-def cosine_similarity(vec_a, vec_b):
-    vec_a, vec_b = np.array(vec_a), np.array(vec_b)
-    return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))
-
-def load_qa_dataset(path: str = "evaluation/qa_dataset.json") -> list[dict]:
-    # read the labeled questions from the json file
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def precision_recall_at_k(results: list[dict], ground_truth_ids: list[str]) -> tuple[float, float]:
-    # build the same chunk id used everywhere else
-    # precision is the share of results that are relevant, recall is the share of relevant chunks found
-    retrieved_ids = [build_chunk_id(r) for r in results]
-
-    # count how many retrieved chunks are actually relevant
-    relevant_retrieved = sum(1 for cid in retrieved_ids if cid in ground_truth_ids)
-
-    precision = relevant_retrieved / len(retrieved_ids) if retrieved_ids else 0
-    recall = relevant_retrieved / len(ground_truth_ids) if ground_truth_ids else 0
-
-    return precision, recall
-
-
-def run_evaluation(qa_dataset: list[dict]) -> dict:
-    # list the three search methods to compare
-    methods = {
-        "bm25": lambda q: bm25_search(q, top_k=TOP_K),
-        "semantic": lambda q: semantic_search(q, top_k=TOP_K),
-        "hybrid": lambda q: hybrid_search(q, top_k=TOP_K)
-    }
-
-    scores = {name: {"precision": [], "recall": []} for name in methods}
-    embedder = get_dashscope_embedder()
-    correct_count = 0
-    details = []
-
-    for item in qa_dataset:
-        hybrid_results = None
-
-        # run every search method once and score it, then keep the hybrid results for the answer below
-        for name, search_fn in methods.items():
-            results = search_fn(item['question'])
-            if name == "hybrid":
-                hybrid_results = results
-
-            precision, recall = precision_recall_at_k(results, item['ground_truth_chunk_ids'])
-            scores[name]["precision"].append(precision)
-            scores[name]["recall"].append(recall)
-
-        # generate an answer from the hybrid results and compare it to the expected answer
-        generated_answer = generate_answer(item['question'], hybrid_results)
-        generated_vector = embedder.embed_query(generated_answer)
-        expected_vector = embedder.embed_query(item['expected_answer'])
-        # convert to plain python types, because numpy types cannot be saved as json
-        similarity = float(cosine_similarity(generated_vector, expected_vector))
-        is_correct = bool(similarity >= CORRECTNESS_THRESHOLD)
-
-        if is_correct:
-            correct_count += 1
-
-        # save the result of this question, so failures can be checked later
-        details.append({
-            "question": item['question'],
-            "expected_answer": item['expected_answer'],
-            "generated_answer": generated_answer,
-            "similarity": similarity,
-            "correct": is_correct
-        })
-
-    # average the precision and recall over all questions, for each method
-    retrieval_summary = {
-        name: {
-            "precision@k": sum(values['precision']) / len(values['precision']),
-            'recall@k': sum(values['recall']) / len(values['recall'])
-        }
-        for name, values in scores.items()
-    }
-
-    return {
-        "retrieval": retrieval_summary,
-        "answer_accuracy": correct_count / len(qa_dataset),
-        "details": details
-    }
-
-# run the evaluation only when this file is run directly
 if __name__ == "__main__":
-    qa_dataset = load_qa_dataset()
-    print(f"loaded {len(qa_dataset)} labeled questions\n")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--answers", type=int, default=30, help="how many questions to grade the answers for")
+    parser.add_argument("--dataset", default="evaluation/qa_dataset.json", help="the labeled question file")
+    args = parser.parse_args()
 
-    results = run_evaluation(qa_dataset)
+    questions = load_questions(args.dataset)
+    print(f"loaded {len(questions)} labeled questions from {args.dataset}\n")
 
-    print("retrieval results:")
-    for method, metrics in results['retrieval'].items():
-        print(f"{method}: precision@{TOP_K} = {metrics['precision@k']:.3f}, recall@{TOP_K} = {metrics['recall@k']:.3f}")
+    print("retrieval (top 5, mean with 95% confidence interval):")
+    retrieval = evaluate_collection([q for q in questions if q.get("answerable", True)], "documents")
+    for method, metrics in retrieval.items():
+        print(f"  {method}: recall {cell(metrics['recall'])}, mrr {cell(metrics['rr'])}, precision {cell(metrics['precision'])}")
 
-    print(f"\nanswer correctness: {results['answer_accuracy']:.1%} of generated answers matched the expected answer")
+    subset = pick_subset(questions, args.answers)
+    print(f"\ngrading answers for {len(subset)} questions...")
+    graded = grade_answers(subset)
+    counts = graded["counts"]
+    print(f"  {counts['correct']} correct, {counts['partial']} partial, {counts['wrong']} wrong")
+    print(f"  average score (partial = 0.5): {cell(graded['score'])}")
+    for category, group in graded["by_category"].items():
+        print(f"    {category}: {group['correct']} correct, {group['partial']} partial, {group['wrong']} wrong")
 
-    # save the result of every question to a file, so findings can be checked later
-    details_path = "evaluation/results/detailed_results.json"
-    with open(details_path, "w", encoding="utf-8") as f:
-        json.dump(results['details'], f, indent=2, ensure_ascii=False)
-    print(f"\nper-question results saved to {details_path}")
+    # save every graded answer, so the failures can be checked later
+    # add the question file name to the output file, so a second dataset does not overwrite the first
+    tag = "" if args.dataset.endswith("qa_dataset.json") else "_" + os.path.splitext(os.path.basename(args.dataset))[0]
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    with open(f"{RESULTS_DIR}/detailed_results{tag}.json", "w", encoding="utf-8") as f:
+        json.dump(graded["details"], f, indent=2, ensure_ascii=False)
 
-    # print the questions that failed
-    failures = [d for d in results['details'] if not d['correct']]
-    if failures:
-        print(f"\n{len(failures)} question(s) failed the correctness check:")
-        for d in failures:
-            print(f"\n- {d['question']} (similarity {d['similarity']:.3f})")
-            print(f"  expected: {d['expected_answer']}")
-            print(f"  generated: {d['generated_answer']}")
+    misses = [d for d in graded["details"] if d["verdict"] != "correct"]
+    for d in misses:
+        print(f"\n- {d['question']} ({d['verdict']}: {d['judge_reason']})")
+        print(f"  expected: {d['expected_answer']}")
+        print(f"  generated: {d['generated_answer'][:300]}")

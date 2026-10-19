@@ -1,0 +1,177 @@
+[
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "question": "When the dot products of queries and keys get large, what goes wrong inside the softmax, and what scaling is applied to fix it?",
+    "expected_answer": "Large dot products push the softmax into regions with extremely small gradients; the authors scale the dot products by 1/sqrt(dk).",
+    "ground_truth_quote": "regions where it has extremely small gradients",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "question": "How many parallel attention heads does the base Transformer use, and what is the key and value dimension of each head?",
+    "expected_answer": "8 heads, each with key and value dimension 64 (dk = dv = dmodel/h = 64).",
+    "ground_truth_quote": "parallel attention layers, or heads",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "question": "The architecture has no recurrence or convolution, so how does it let the network know the order of the tokens?",
+    "expected_answer": "It injects positional information by adding positional encodings to the input embeddings.",
+    "ground_truth_quote": "inject some information about the relative",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/bert.pdf",
+    "question": "What portion of the input tokens gets hidden at random during the first pre-training task of the bidirectional language model?",
+    "expected_answer": "15% of all WordPiece tokens in each sequence are masked.",
+    "ground_truth_quote": "we mask 15% of all WordPiece tokens",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/bert.pdf",
+    "question": "Among the tokens chosen for masking, how often is the special mask symbol really used in place of the original token?",
+    "expected_answer": "80% of the time; 10% of the time a random token is used and 10% of the time the token is left unchanged.",
+    "ground_truth_quote": "the [MASK] token 80% of the time",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/bert.pdf",
+    "question": "How many parameters does the larger of the two BERT configurations have?",
+    "expected_answer": "BERT large has 340M parameters (24 layers, hidden size 1024, 16 attention heads).",
+    "ground_truth_quote": "BERTLARGE contains 340M parameters",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/lora.pdf",
+    "question": "Compared with fully fine-tuning the 175B GPT-3 model, by what factor does the low-rank method cut the number of trainable parameters?",
+    "expected_answer": "About 10,000 times fewer trainable parameters (and about 3 times less GPU memory).",
+    "ground_truth_quote": "reduce the number of trainable parameters by 10,000 times",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/lora.pdf",
+    "question": "Why does the low-rank method not slow down inference after deployment, unlike adapter layers?",
+    "expected_answer": "The trainable matrices can be merged with the frozen weights at deployment, so no extra inference latency is introduced.",
+    "ground_truth_quote": "merge the trainable matrices with the frozen weights",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "question": "Even though it is far deeper, how does the compute cost of the 152-layer residual network compare with the VGG networks?",
+    "expected_answer": "It has lower complexity: 11.3 billion FLOPs versus 15.3 billion for VGG-16 and 19.6 billion for VGG-19.",
+    "ground_truth_quote": "152-layer ResNet (11.3 billion FLOPs)",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "question": "By how many points does the dense retriever beat a classic keyword baseline in top-20 retrieval accuracy?",
+    "expected_answer": "It outperforms the Lucene BM25 system by 9% to 19% absolute in top-20 passage retrieval accuracy.",
+    "ground_truth_quote": "9%-19% absolute in terms of top-20",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "paraphrased",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "question": "Which pretrained sequence-to-sequence model writes the final answer in the retrieval-augmented generation approach?",
+    "expected_answer": "BART is the seq2seq generator.",
+    "ground_truth_quote": "the seq2seq model (BART [32])",
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "cross-document",
+    "source_document": "multiple",
+    "question": "Which retrieval method does the retrieval-augmented generation paper build its retriever on, and what architecture does that method's own paper use to encode questions and passages?",
+    "expected_answer": "The retriever is based on DPR (Dense Passage Retrieval), which uses a dual-encoder (bi-encoder) architecture.",
+    "ground_truth_quotes": [
+      "is based on DPR",
+      "and a dual-encoder architecture"
+    ],
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "cross-document",
+    "source_document": "multiple",
+    "question": "How many parameters does the largest BERT model have, compared with the GPT-3 model that the low-rank adaptation paper works with?",
+    "expected_answer": "The largest BERT model has 340M parameters, while GPT-3 has 175B parameters.",
+    "ground_truth_quotes": [
+      "BERTLARGE contains 340M parameters",
+      "Using GPT-3 175B as an example"
+    ],
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "cross-document",
+    "source_document": "multiple",
+    "question": "BERT's architecture builds on an earlier model. Which model is that, and what mechanism does that earlier model rely on exclusively?",
+    "expected_answer": "BERT builds on the Transformer encoder, which relies solely on attention mechanisms, dispensing with recurrence and convolutions.",
+    "ground_truth_quotes": [
+      "multi-layer bidirectional Transformer encoder",
+      "based solely on attention mechanisms"
+    ],
+    "origin": "written after tuning, held out",
+    "answerable": true
+  },
+  {
+    "category": "unanswerable",
+    "source_document": "none",
+    "answerable": false,
+    "question": "What BLEU score does BERT reach on the WMT 2014 English-to-German translation task?",
+    "expected_answer": "Not in the documents: the BERT paper does not evaluate machine translation.",
+    "origin": "written after tuning, held out"
+  },
+  {
+    "category": "unanswerable",
+    "source_document": "none",
+    "answerable": false,
+    "question": "How many dollars did it cost to train the retrieval-augmented generation models?",
+    "expected_answer": "Not in the documents: no training cost in dollars is reported.",
+    "origin": "written after tuning, held out"
+  },
+  {
+    "category": "unanswerable",
+    "source_document": "none",
+    "answerable": false,
+    "question": "What top-1 accuracy does the low-rank adaptation method reach on ImageNet image classification?",
+    "expected_answer": "Not in the documents: LoRA is evaluated on language models, not ImageNet.",
+    "origin": "written after tuning, held out"
+  },
+  {
+    "category": "unanswerable",
+    "source_document": "none",
+    "answerable": false,
+    "question": "What word error rate does the residual network paper report on LibriSpeech speech recognition?",
+    "expected_answer": "Not in the documents: the paper covers image tasks, not speech recognition.",
+    "origin": "written after tuning, held out"
+  },
+  {
+    "category": "unanswerable",
+    "source_document": "none",
+    "answerable": false,
+    "question": "What is the capital of France?",
+    "expected_answer": "Not in the documents: this is unrelated to the uploaded documents.",
+    "origin": "written after tuning, held out"
+  }
+]

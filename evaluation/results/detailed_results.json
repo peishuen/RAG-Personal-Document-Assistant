@@ -2,183 +2,241 @@
   {
     "question": "What is the title of the OPV2V paper?",
     "expected_answer": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication",
-    "generated_answer": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication [Source 1]",
-    "similarity": 0.9963844105873539,
-    "correct": true
-  },
-  {
-    "question": "How many implemented models does OPV2V's benchmark include, and what fusion strategies are evaluated?",
-    "expected_answer": "16 implemented models, evaluating early, late, and intermediate fusion strategies.",
-    "generated_answer": "The OPV2V benchmark includes a total of 16 implemented models [Source 1] [Source 2]. The fusion strategies evaluated are early fusion, late fusion, and intermediate fusion [Source 1] [Source 2].",
-    "similarity": 0.7971210204874526,
-    "correct": true
+    "generated_answer": "The title of the OPV2V paper is **\"OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication\"** [Source 2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer provides the exact title of the OPV2V paper, matching the expected answer perfectly.",
+    "score": 1.0
   },
   {
     "question": "How many cameras and what type of LiDAR does each CAV in OPV2V use?",
     "expected_answer": "Each CAV uses 4 RGB cameras (800x600 resolution, 110 degree FOV) and 1 LiDAR with 64 channels, capturing 1.3 million points per second within a 120m range.",
-    "generated_answer": "Each CAV in OPV2V uses 4 cameras and a 64-channel LiDAR [Source 1], [Source 2].",
-    "similarity": 0.8097959492722065,
-    "correct": true
-  },
-  {
-    "question": "What vehicle sensor setup was used to collect real-world data in Culver City?",
-    "expected_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was sent out to Culver City during rush hour to collect sensing data.",
-    "generated_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was used to collect real-world sensing data in Culver City [1].",
-    "similarity": 0.9482086155916762,
-    "correct": true
-  },
-  {
-    "question": "How many frames, ground truth boxes, and total dataset size does OPV2V provide?",
-    "expected_answer": "OPV2V provides 11,464 frames, 232,913 ground truth 3D boxes, and 249.4GB of data across 9 cities.",
-    "generated_answer": "OPV2V provides 11,464 frames, 232,913 annotated 3D vehicle bounding boxes (ground truth boxes), and a total dataset size of 249.4 GB [Source 4], [Source 5].",
-    "similarity": 0.9306963553633406,
-    "correct": true
+    "generated_answer": "Each CAV in OPV2V is equipped with **4 cameras** (RGB, 800 × 600 resolution, 110° FOV) that together cover a 360° view, and a **64-channel LiDAR** (1.3 M points per second, 120 m capturing range, −25° to 5° vertical FOV, ± 2 cm error) [Source 1][Source 2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts (4 RGB cameras with 800x600 resolution and 110° FOV, 64-channel LiDAR, 1.3M points per second, 120m range) and adds only extra correct details without contradiction.",
+    "score": 1.0
   },
   {
     "question": "What are the six modules of the Attentive Intermediate Fusion pipeline?",
     "expected_answer": "Metadata Sharing, Feature Extraction, Compression, Feature Sharing, Attentive Fusion, and Prediction Header.",
-    "generated_answer": "The six modules of the Attentive Intermediate Fusion pipeline are: Metadata sharing, Feature Extraction, Compression, Feature sharing, Attentive Fusion, and Prediction [Source 1].",
-    "similarity": 0.8186092302464648,
-    "correct": true
-  },
-  {
-    "question": "According to Table IV, which fusion strategy generally achieves the best object detection performance?",
-    "expected_answer": "Intermediate fusion generally achieves the best performance across PIXOR, PointPillar, SECOND, and VoxelNet, except for PIXOR at Culver City.",
-    "generated_answer": "According to Table IV, intermediate fusion generally achieves the best object detection performance on both testing sets compared with all other methods [Source 3].",
-    "similarity": 0.7308866716741239,
-    "correct": false
-  },
-  {
-    "question": "At a 4096x compression rate, how much does detection performance drop, and what is the message delivery time delay?",
-    "expected_answer": "Performance drops only marginally, around 3%, and the delivery delay at 4096x compression is only about 5ms.",
-    "generated_answer": "At a 4096x compression rate, the detection performance drops marginally by around 3%, and the message delivery time delay is only about 5 ms [Source 1].",
-    "similarity": 0.8317981132182916,
-    "correct": true
+    "generated_answer": "The six modules of the Attentive Intermediate Fusion pipeline are [1]:\n\n1. **Metadata Sharing** – build connection graph and broadcast locations among neighboring CAVs.\n2. **Feature Extraction** – extract features based on each detector's backbone.\n3. **Compression (optional)** – use Encoder-Decoder to compress/decompress features.\n4. **Feature Sharing** – share (compressed) features with connected vehicles.\n5. **Attentive Fusion** – leverage self-attention to learn interactions among features in the same spatial location.\n6. **Prediction Header** – generate final object predictions.\n\n[2]",
+    "verdict": "correct",
+    "judge_reason": "The generated answer lists all six modules matching the expected answer exactly, with additional descriptive details that do not contradict it.",
+    "score": 1.0
   },
   {
     "question": "What does the paper conclude about the Attentive Intermediate Fusion pipeline compared to other fusion methods?",
     "expected_answer": "It outperforms all other fusion methods and achieves state-of-the-art performance even under large compression rates.",
-    "generated_answer": "The paper concludes that the proposed Attentive Intermediate Fusion pipeline outperforms all other fusion methods and achieves state-of-the-art performance, even under large compression rates [Source 1].",
-    "similarity": 0.8376563010810585,
-    "correct": true
-  },
-  {
-    "question": "What is cooperative perception, according to the summary?",
-    "expected_answer": "Cooperative perception refers to the real-time sharing and fusion of sensor data among multiple road actors, such as vehicles, infrastructure units and other connected devices, to overcome the inherent limitations of individual sensing systems.",
-    "generated_answer": "Cooperative perception refers to the real-time sharing and fusion of sensor data among multiple road actors—such as vehicles, infrastructure units, and other connected devices—to overcome the inherent limitations of individual sensing systems [Source 1].",
-    "similarity": 0.9972362280046767,
-    "correct": true
-  },
-  {
-    "question": "What three network architectures does cooperative perception span, and what low-latency protocols do they rely on?",
-    "expected_answer": "V2V, V2I, and hybrid networks, relying on low-latency protocols such as 5G and dedicated short-range communications.",
-    "generated_answer": "Cooperative perception spans vehicle-to-vehicle (V2V), vehicle-to-infrastructure (V2I), and hybrid networks, and relies on low-latency protocols such as 5G and dedicated short-range communications [Source 1].",
-    "similarity": 0.8335898554870528,
-    "correct": true
+    "generated_answer": "The paper concludes that the Attentive Intermediate Fusion pipeline can outperform all other fusion methods and achieve state-of-the-art performance even under large compression rates [Source 1]. Specifically, even with a 4096x compression rate, its performance only drops marginally (around 3%) and still surpasses both early fusion and late fusion [Source 3].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (outperforms all fusion methods, achieves state-of-the-art, even under large compression rates) with additional supporting detail that does not contradict it.",
+    "score": 1.0
   },
   {
     "question": "Why are data compression, synchronisation, and security mechanisms important in cooperative perception systems?",
     "expected_answer": "They are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection.",
-    "generated_answer": "Data compression, synchronisation, and security mechanisms are important in cooperative perception systems because they are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection [Source 1].",
-    "similarity": 0.6737429524494312,
-    "correct": false
-  },
-  {
-    "question": "What is HYDRO-3D and what does it integrate?",
-    "expected_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception that integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps.",
-    "generated_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception that integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps [Source 1].",
-    "similarity": 0.9976323965674435,
-    "correct": true
-  },
-  {
-    "question": "What is CoPnP and what results does it report?",
-    "expected_answer": "CoPnP is a collaborative joint perception and prediction system using CAVs and RSUs, reporting double-digit gains in intersection-over-union and video panoptic quality.",
-    "generated_answer": "CoPnP is a collaborative joint perception and prediction system that exploits multi-frame spatial-temporal information from both CAVs and RSUs [Source 1]. It uses a task-oriented feature refinement model and an importance-aware fusion module to filter redundant data and fuse complementary perspectives efficiently [Source 1]. Experiments report double-digit gains in intersection-over-union and video panoptic quality, extending collaboration benefits to short-term trajectory forecasting [Source 1].",
-    "similarity": 0.9214331240202435,
-    "correct": true
+    "generated_answer": "According to the context, data compression, synchronisation, and security mechanisms are important in cooperative perception systems because they are \"crucial to ensuring reliable transmission and protecting against spoofing or malicious injection\" [Source 1]. In other words, these mechanisms serve two key purposes:\n\n1. **Reliable transmission** – ensuring that the sensor data shared among vehicles and infrastructure units is delivered dependably [Source 1].\n2. **Security protection** – safeguarding the system against spoofing or malicious injection attacks [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains both key facts (reliable transmission and protection against spoofing/malicious injection) and adds no contradicting information.",
+    "score": 1.0
   },
   {
     "question": "What technique does HP3D-V2V use to denoise point clouds?",
     "expected_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds.",
     "generated_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds [Source 1].",
-    "similarity": 0.9970494045889342,
-    "correct": true
-  },
-  {
-    "question": "What does Bird's-Eye-View (BEV) mean in the context of cooperative perception?",
-    "expected_answer": "A top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving.",
-    "generated_answer": "In the context of cooperative perception, Bird's-Eye-View (BEV) refers to a top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving [Source 2].",
-    "similarity": 0.7909608541747685,
-    "correct": true
-  },
-  {
-    "question": "What are the three collaboration levels at which agents can share information in cooperative perception?",
-    "expected_answer": "Raw sensor data, intermediate feature maps, or processed object-level information like coordinates and velocities.",
-    "generated_answer": "The three collaboration levels at which agents can share information in cooperative perception are: raw sensor data, intermediate feature maps, and processed object-level information (such as coordinates and velocities) [Source 1].",
-    "similarity": 0.7416122313800286,
-    "correct": false
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer, with only an additional source citation that does not change the meaning.",
+    "score": 1.0
   },
   {
     "question": "What is the title of this project's presentation, and who presented it?",
     "expected_answer": "Optimizing Cooperative Perception in Autonomous Vehicle through Semantic Data Analytics, presented by Li Xian Ng, Jia Xuan Goh, and Pei Shuen Ooi under MDS 17.",
-    "generated_answer": "I don't know.",
-    "similarity": 0.23417993865126824,
-    "correct": false
-  },
-  {
-    "question": "What problem does this project's overview slide identify about individual vehicles?",
-    "expected_answer": "Every vehicle sees through one pair of eyes, roads are shared but blind spots are not, and objects like trucks or buildings constantly hide things from view.",
-    "generated_answer": "The overview slide identifies that every vehicle sees through only one pair of eyes, meaning they have blind spots and cannot see objects hidden by trucks or buildings. [Source 1]",
-    "similarity": 0.9270288566941014,
-    "correct": true
-  },
-  {
-    "question": "What is explicitly listed as out of scope for this project?",
-    "expected_answer": "Latency performance and real-time video streaming.",
-    "generated_answer": "Real-time video streaming is explicitly listed as out of scope for this project [Source 1].",
-    "similarity": 0.567410892698162,
-    "correct": false
+    "generated_answer": "Based on the provided context, the presentation was given by **Li Xian Ng** [Source 4][Source 5].\n\nHowever, the title of the project's presentation is not explicitly stated in the context provided. The file is referenced as \"Final-Presentation-Slide.pdf,\" and the visible slide headings include \"Conclusion\" [Source 5] and \"Lesson Learnt\" [Source 4], but no clear project title is given.",
+    "verdict": "partial",
+    "judge_reason": "The generated answer correctly identifies Li Xian Ng as a presenter but misses the other two presenters, the project title, and the MDS 17 reference.",
+    "score": 0.5
   },
   {
     "question": "What are the three use cases presented for this project?",
     "expected_answer": "Occluded detection, blind intersection, and emergency vehicle.",
-    "generated_answer": "The three use cases presented for this project are occluded detection, blind intersection, and emergency vehicle [Source 1].",
-    "similarity": 0.8504128494463065,
-    "correct": true
-  },
-  {
-    "question": "How does the RSU help an autonomous vehicle react to high occlusion, and how does it reduce communication cost?",
-    "expected_answer": "The RSU reveals a hidden car so the AV stops in time when occlusion blocks its view, and it only activates when needed, making it scalable for real-world deployment.",
-    "generated_answer": "The RSU helps an autonomous vehicle react to high occlusion by revealing hidden cars so the AV stops in time, and it reduces communication cost because the RSU only activates when needed, making it scalable for real-world deployment [Source 1].",
-    "similarity": 0.8606886618703158,
-    "correct": true
-  },
-  {
-    "question": "In the system architecture, what happens when the ego vehicle's detection confidence is 0.30 or below?",
-    "expected_answer": "The RSU is activated, and the RSU Pi, also running YOLOv8n, sends its detection result via JSON file transfer for fusion.",
-    "generated_answer": "When the ego vehicle's detection confidence is 0.30 or below, the RSU (Roadside Unit) is activated and Demo 2 proceeds. [Source 1]",
-    "similarity": 0.614413676109112,
-    "correct": false
+    "generated_answer": "The three use cases presented for this project are:\n\n1. **Occluded detection**\n2. **Blind intersection**\n3. **Emergency Vehicle**\n\n[Source 3]",
+    "verdict": "correct",
+    "judge_reason": "The generated answer lists all three use cases (occluded detection, blind intersection, and emergency vehicle) exactly matching the expected answer.",
+    "score": 1.0
   },
   {
     "question": "What is the minimum viable JPEG quality for reliable object detection, and how much smaller is the transmission compared to full quality?",
     "expected_answer": "Q=30 is the minimum viable quality, giving 94% smaller transmission size compared to full quality.",
-    "generated_answer": "The minimum viable JPEG quality for reliable object detection is Q = 30 [Source 1]. However, the provided context does not contain information about how much smaller the transmission is compared to full quality.",
-    "similarity": 0.836758178413349,
-    "correct": true
+    "generated_answer": "Based on the provided context:\n\n**Minimum viable JPEG quality:** Q = 30 is the minimum viable quality for object detection [Source 1]. This was established as the minimum JPEG quality that preserves detection accuracy [Source 2].\n\n**Transmission reduction:** The context does not specify how much smaller the transmission is when using JPEG compression at Q=30 compared to full quality. However, it does mention that if the RSU sends detection results (semantic) instead of raw images, the data transmitted can be up to 99.9% less [Source 3].",
+    "verdict": "partial",
+    "judge_reason": "It correctly identifies Q=30 as the minimum viable quality but explicitly states it does not know the transmission reduction (94% smaller), missing that key fact.",
+    "score": 0.5
   },
   {
-    "question": "How much less data is transmitted when the RSU sends semantic detection results instead of raw images?",
-    "expected_answer": "Up to 99.9% less data transmitted, from a 192.55 KB raw image down to a 0.0645 KB semantic-only payload.",
-    "generated_answer": "Up to 99.9% less data is transmitted when the RSU sends semantic detection results instead of raw images [Source 1].",
-    "similarity": 0.7634540949408009,
-    "correct": true
+    "question": "What dropout rate does the Transformer (big) model use for English-to-French translation?",
+    "expected_answer": "The Transformer (big) model trained for English-to-French uses a dropout rate of 0.1.",
+    "generated_answer": "The Transformer (big) model trained for English-to-French translation uses a dropout rate of **Pdrop = 0.1**, instead of the 0.3 used in other configurations [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly states the dropout rate is 0.1 for the Transformer (big) model in English-to-French translation, matching the expected answer, with only additional correct detail.",
+    "score": 1.0
   },
   {
-    "question": "What two deficiencies does the project identify?",
-    "expected_answer": "Bounding Box Drift, where hidden vehicle positions are estimated and drift increases from the anchor, and Fixed Confidence Threshold, where the threshold is not adaptive to different environments.",
-    "generated_answer": "I don't know.",
-    "similarity": 0.2831076299514471,
-    "correct": false
+    "question": "In the Transformer paper, what type of models have not been able to attain state-of-the-art results in small-data regimes for English constituency parsing?",
+    "expected_answer": "RNN sequence-to-sequence models have not been able to attain state-of-the-art results in small-data regimes for English constituency parsing.",
+    "generated_answer": "RNN sequence-to-sequence models have not been able to attain state-of-the-art results in small-data regimes for English constituency parsing [1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer matches the expected answer exactly in key facts, with only a citation reference added.",
+    "score": 1.0
+  },
+  {
+    "question": "In the Transformer's attention mechanism, what computes the weight assigned to each value?",
+    "expected_answer": "The weight assigned to each value is computed by a compatibility function of the query with the corresponding key.",
+    "generated_answer": "In the Transformer's attention mechanism, the weight assigned to each value is computed by a compatibility function of the query with the corresponding key [1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer matches the expected answer exactly, stating that the weight is computed by a compatibility function of the query with the corresponding key.",
+    "score": 1.0
+  },
+  {
+    "question": "How long did each training step take for the big Transformer models?",
+    "expected_answer": "Each training step took 1.0 seconds for the big Transformer models.",
+    "generated_answer": "Each training step for the big Transformer models took 1.0 seconds [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains the same key fact (1.0 seconds per training step for big Transformer models) as the expected answer, with only minor rewording and an additional source citation.",
+    "score": 1.0
+  },
+  {
+    "question": "What is the purpose of the [CLS] symbol in BERT?",
+    "expected_answer": "[CLS] is a special symbol added in front of every input example in BERT.",
+    "generated_answer": "The [CLS] symbol in BERT serves as a **special classification token** that is added in front of every input example [Source 1]. Its primary purpose is to act as an **aggregate sequence representation for classification tasks** [Source 3]. Specifically, the final hidden state corresponding to this token is used as the aggregate sequence representation for classification tasks such as entailment or sentiment analysis [Source 3] [Source 5]. Additionally, in question answering tasks like SQuAD, the [CLS] token is used to represent questions that do not have an answer (i.e., the \"no-answer span\") [Source 4]. It is also described as the special symbol for classification output in task-specific fine-tuning models [Source 2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (special symbol added in front of every input example) and adds correct supplementary details without contradicting the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What dataset is excluded from the Average column in the GLUE benchmark results for BERT?",
+    "expected_answer": "The problematic WNLI set is excluded from the Average column in the GLUE benchmark results.",
+    "generated_answer": "The WNLI (Winograd NLI) dataset is excluded from the \"Average\" column in the GLUE benchmark results for BERT. The paper states: \"The 'Average' column is slightly different than the official GLUE score, since we exclude the problematic WNLI set.\" [Source 1] This is because the GLUE webpage notes issues with the construction of the WNLI dataset, and every trained system submitted to GLUE has performed worse than the 65.1 baseline accuracy of predicting the majority class [Source 4].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly identifies WNLI as the dataset excluded from the Average column, matching the expected answer's key fact.",
+    "score": 1.0
+  },
+  {
+    "question": "What type of self-attention does the BERT Transformer use, and how does it differ from GPT?",
+    "expected_answer": "The BERT Transformer uses bidirectional self-attention, while the GPT Transformer uses constrained self-attention where every token can only attend to context to its left.",
+    "generated_answer": "The BERT Transformer uses **bidirectional self-attention**, while the GPT Transformer uses **constrained self-attention** where every token can only attend to context to its left [Source 1]. This is further explained in the paper as being critical for sentence-level and token-level tasks (such as question answering), where it is crucial to incorporate context from both directions [Source 4].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer—BERT uses bidirectional self-attention and GPT uses constrained self-attention attending only to left context—with no contradictions.",
+    "score": 1.0
+  },
+  {
+    "question": "How many labeled training examples does the MRPC dataset have in the GLUE benchmark?",
+    "expected_answer": "The MRPC dataset only has 3,600 labeled training examples.",
+    "generated_answer": "The MRPC dataset has **3,600 labeled training examples** in the GLUE benchmark [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly states that the MRPC dataset has 3,600 labeled training examples, matching the key fact in the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What are the three classification categories required by the FEVER task?",
+    "expected_answer": "FEVER requires classifying claims as supported, refuted, or having not enough information to decide.",
+    "generated_answer": "The three classification categories required by the FEVER task are:\n\n1. **Supported** – the claim is supported by Wikipedia\n2. **Refuted** – the claim is refuted by Wikipedia\n3. **Not Enough Info** – there is not enough information to decide\n\n[1][2][3]",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly identifies all three FEVER classification categories (Supported, Refuted, Not Enough Info) matching the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What does the RAG-Token model allow the generator to do when producing an answer?",
+    "expected_answer": "The RAG-Token model allows the generator to choose content from several documents when producing an answer.",
+    "generated_answer": "The RAG-Token model allows the generator to choose content from several documents when producing an answer [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains the exact key fact from the expected answer, with only a harmless source citation added.",
+    "score": 1.0
+  },
+  {
+    "question": "What capability does the retrieval index in RAG models provide that avoids the need for retraining?",
+    "expected_answer": "The retrieval index in RAG models can be hot-swapped to update the model without requiring any retraining.",
+    "generated_answer": "The retrieval index in RAG models can be **hot-swapped** to update the model's knowledge at test time without requiring any retraining [Source 1]. This is an advantage of non-parametric memory models like RAG, since knowledge can be easily updated at test time, whereas parametric-only models like T5 or BART need further training to update their behavior as the world changes [Source 4].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (hot-swapping the retrieval index to update without retraining) and adds extra correct context about non-parametric vs parametric memory.",
+    "score": 1.0
+  },
+  {
+    "question": "What are the example corpus sizes for open-domain QA systems in dense passage retrieval?",
+    "expected_answer": "The corpus can range from millions of documents (e.g., Wikipedia) to billions (e.g., the Web).",
+    "generated_answer": "According to the context, the corpus size for open-domain QA systems can range from **millions of documents (e.g., Wikipedia)** to **billions (e.g., the Web)** [1]. In the specific experiments described in the Dense Passage Retriever (DPR) work, the collection consisted of **21 million passages** [2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (millions to billions, Wikipedia, Web) and adds extra correct detail without contradicting anything.",
+    "score": 1.0
+  },
+  {
+    "question": "According to the dense passage retrieval study, what did the authors find about Wang et al. (2019)'s proposal of splitting documents into overlapping passages?",
+    "expected_answer": "The authors did not find overlapping passages advantageous compared to the non-overlapping version.",
+    "generated_answer": "According to the dense passage retrieval study, the authors found that Wang et al. (2019)'s proposal of splitting documents into overlapping passages was **not advantageous compared to the non-overlapping version** [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer matches the expected answer in all key facts, stating that overlapping passages were not advantageous compared to non-overlapping versions.",
+    "score": 1.0
+  },
+  {
+    "question": "What does REALM (Guu et al., 2020) add to the joint training approach of Lee et al. (2019)?",
+    "expected_answer": "REALM extends the approach by tuning the passage encoder asynchronously through re-indexing the passages during training.",
+    "generated_answer": "REALM (Guu et al., 2020) extends the joint training approach of Lee et al. (2019) by including tuning the passage encoder asynchronously by re-indexing the passages during training [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer captures all key facts from the expected answer — tuning the passage encoder asynchronously by re-indexing passages during training — with no contradictions.",
+    "score": 1.0
+  },
+  {
+    "question": "In the dense retrieval example using the Lord of the Rings question \"Who is the bad guy in lord of the rings?\", who is the actor identified as portraying the villain Sauron?",
+    "expected_answer": "Sala Baker is best known for portraying the villain Sauron in the Lord of the Rings trilogy.",
+    "generated_answer": "The actor identified as portraying the villain Sauron is **Sala Baker** [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly identifies Sala Baker as the actor portraying Sauron, matching the key fact in the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What depth range do \"very deep\" models exploit for results on the ImageNet dataset?",
+    "expected_answer": "\"Very deep\" models have a depth of sixteen to thirty.",
+    "generated_answer": "According to the source, the leading results on the challenging ImageNet dataset all exploit \"very deep\" models, with a depth of **sixteen to thirty** [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly states the depth range of sixteen to thirty, matching the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "In the Residual Network, what does option (A) do when the dimensions increase?",
+    "expected_answer": "Option (A) in the Residual Network has the shortcut still perform identity mapping, with extra zero entries padded for increasing dimensions.",
+    "generated_answer": "When the dimensions increase, option (A) still performs identity mapping, with extra zero entries padded for increasing dimensions [Source 2]. This option introduces no extra parameter [Source 2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (identity mapping with zero padding for increasing dimensions) and adds correct extra detail about no extra parameters.",
+    "score": 1.0
+  },
+  {
+    "question": "What is the test error of the 1202-layer deep residual network?",
+    "expected_answer": "The test error of the 1202-layer network is 7.93%.",
+    "generated_answer": "The test error of the 1202-layer deep residual network is 7.93% [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly states the test error as 7.93%, matching the expected answer exactly.",
+    "score": 1.0
+  },
+  {
+    "question": "In the deep residual learning paper, what happens to the training and test error when using 56-layer \"plain\" networks compared to 20-layer ones on CIFAR-10?",
+    "expected_answer": "The deeper (56-layer) network has higher training error, and thus higher test error.",
+    "generated_answer": "In the deep residual learning paper, when using 56-layer \"plain\" networks compared to 20-layer ones on CIFAR-10, the deeper network has higher training error, and thus higher test error [Source 1]. This is because the deep plain nets suffer from increased depth and exhibit higher training error when going deeper, which suggests that such an optimization difficulty is a fundamental problem [Source 2].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer correctly states that the 56-layer plain network has higher training error and thus higher test error compared to the 20-layer network, matching all key facts of the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What makes fine-tuning GPT-3 175B challenging in LoRA?",
+    "expected_answer": "Fine-tuning GPT-3 175B is challenging because of the large checkpoint it produces and the high hardware barrier to entry, since it has the same memory footprint as pre-training.",
+    "generated_answer": "Fine-tuning GPT-3 175B is challenging due to **the enormity of the model**, which produces a **large checkpoint** and creates a **high hardware barrier to entry** since it has the same memory footprint as pre-training [Source 1]. Additionally, deploying independent instances of fine-tuned models, each with 175B parameters, is **prohibitively expensive** [Source 2][Source 3]. The major downside is that the new model contains as many parameters as the original model, making it a critical deployment challenge rather than just an inconvenience [Source 5].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer (large checkpoint, high hardware barrier, same memory footprint as pre-training) and adds extra correct details without contradicting the expected answer.",
+    "score": 1.0
+  },
+  {
+    "question": "What does the LoRA method keep frozen while indirectly training dense layers?",
+    "expected_answer": "LoRA keeps the pre-trained weights frozen while optimizing rank decomposition matrices of the dense layers' change during adaptation.",
+    "generated_answer": "The LoRA method keeps the **pre-trained weights** frozen while indirectly training dense layers by optimizing rank decomposition matrices of the dense layers' change during adaptation [Source 1].",
+    "verdict": "correct",
+    "judge_reason": "The generated answer contains all key facts from the expected answer, including that pre-trained weights are kept frozen and rank decomposition matrices of the dense layers' change are optimized during adaptation.",
+    "score": 1.0
   }
 ]

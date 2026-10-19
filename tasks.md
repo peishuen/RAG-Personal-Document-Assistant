@@ -36,7 +36,7 @@
 ## Phase 6: Hybrid Ranking and Reranking
 
 - [x] Combine BM25 and semantic search results into a single ranked list
-- [x] Add a reranking step on top of the combined results
+- [x] Add a reranking step on top of the combined results (later removed: the Qwen reranker cost about 7,400 tokens per search, and rank fusion alone was nearly as good)
 - [x] Test hybrid ranking output against each individual method
 
 ## Phase 7: Grounding and Generation

@@ -58,6 +58,44 @@ export const getSession = (id) =>
 export const deleteSession = (id) =>
   fetch(`${BASE}/sessions/${id}`, { method: "DELETE", headers: authHeaders() });
 
+// send a question and read the answer as it streams in, then return the finished turn
+// onToken is called with each new piece of text, so the screen can show it at once
+export const askQuestionStream = async (sessionId, question, sources, onToken) => {
+  const response = await fetch(`${BASE}/sessions/${sessionId}/messages/stream`, {
+    method: "POST",
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ question, sources }),
+  });
+  if (!response.ok || !response.body) throw new Error("request failed");
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalTurn = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    // add the new bytes, then split out every complete event (each ends with a blank line)
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop();
+
+    for (const raw of events) {
+      if (!raw.startsWith("data: ")) continue;
+      const event = JSON.parse(raw.slice(6));
+
+      if (event.type === "token") onToken(event.text);
+      else if (event.type === "done") finalTurn = event.turn;
+      else if (event.type === "error") throw new Error(event.message);
+    }
+  }
+
+  if (!finalTurn) throw new Error("the answer stream ended early");
+  return finalTurn;
+};
+
 // send a question and get back the answer, with the chosen documents to search in
 export const askQuestion = (sessionId, question, sources) =>
   fetch(`${BASE}/sessions/${sessionId}/messages`, {

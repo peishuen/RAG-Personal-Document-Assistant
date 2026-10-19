@@ -13,6 +13,8 @@ from PIL import Image
 from pypdf import PdfReader
 import io
 
+from src.ingestion import text_cleaner
+
 # set the tesseract path by hand on windows, because it is not on PATH by default
 # skip this on linux (render, docker), where apt-get already puts tesseract on PATH
 if platform.system() == "Windows" and shutil.which("tesseract") is None:
@@ -33,8 +35,8 @@ def load_scanned_pdf(file_path: str) -> list[dict]:
     pages = []
 
     for i, pdf_page in enumerate(pdf_pages):
-        # try to get the text the normal way first
-        text = pdf_page["text"]
+        # try to get the text the normal way first, with the markdown noise removed
+        text = text_cleaner.clean_if_enabled(pdf_page["text"])
 
         # use ocr on the page images if no text was found
         if not text or not text.strip():

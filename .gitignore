@@ -13,3 +13,8 @@ data/uploads/
 # Frontend dependencies and build output
 frontend/node_modules/
 frontend/dist/
+data/metrics*.jsonl
+data/eval_docs/
+data/eval_chroma_db/
+.env.backup*
+evaluation/results/evaluation_results*.json

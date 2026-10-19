@@ -40,6 +40,6 @@ for query in sample_questions:
     for r in semantic_search(query, top_k=3):
         print(f"score {r['score']:.4f} | page {r['metadata']['page']} | {r['text'][:150]}")
 
-    print("\nhybrid (fused + reranked) top 3:")
+    print("\nhybrid (bm25 + semantic merged by rank) top 3:")
     for r in hybrid_search(query, top_k=3):
-        print(f"rerank score {r['rerank_score']:.4f} | page {r['metadata']['page']} | {r['text'][:150]}")
+        print(f"fusion score {r['score']:.4f} | page {r['metadata']['page']} | {r['text'][:150]}")

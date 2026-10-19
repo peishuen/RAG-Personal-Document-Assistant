@@ -8,6 +8,7 @@ and misses cases where the topic is the same but the fact is wrong.
 
 import re
 from src.generation.llm_client import get_llm
+from src.metrics.tracker import timed, record_llm
 
 def build_grounding_prompt(answer: str, chunks: list[dict]) -> str:
     # number each chunk so the llm can name the best one
@@ -60,9 +61,13 @@ def check_grounding(answer: str, chunks: list[dict]) -> dict:
     if not chunks:
         return {"grounded": False, "best_chunk": None, "reason": "no chunks were retrieved"}
 
-    llm = get_llm()
+    llm = get_llm("grounding")
     prompt = build_grounding_prompt(answer, chunks)
-    response = llm.invoke(prompt)
 
-    # turn the llm reply into a simple result
+    # send the prompt to the llm, and time the call
+    with timed("grounding"):
+        response = llm.invoke(prompt)
+
+    # count the tokens, then turn the llm reply into a simple result
+    record_llm(response)
     return parse_grounding_response(response.content, chunks)

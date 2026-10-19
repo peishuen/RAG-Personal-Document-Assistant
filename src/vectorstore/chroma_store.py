@@ -11,7 +11,8 @@ import shutil
 import chromadb
 
 # set the folder where chromadb saves its data on disk
-PERSIST_DIR = "data/chroma_db"
+# the evaluation scripts set CHROMA_DIR to use their own database, so the app's data stays untouched
+PERSIST_DIR = os.getenv("CHROMA_DIR", "data/chroma_db")
 
 # set the folder of the prebuilt database that only has the sample docs
 # copy it into PERSIST_DIR on startup when that folder is empty

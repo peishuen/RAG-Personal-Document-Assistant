@@ -3,156 +3,609 @@
     "question": "What is the title of the OPV2V paper?",
     "expected_answer": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p1_c0"]
+    "ground_truth_quote": "OPV2V: An Open Benchmark Dataset and Fusion Pipeline",
+    "origin": "original set"
   },
   {
     "question": "How many implemented models does OPV2V's benchmark include, and what fusion strategies are evaluated?",
     "expected_answer": "16 implemented models, evaluating early, late, and intermediate fusion strategies.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p1_c2"]
+    "ground_truth_quote": "a total of 16 implemented models",
+    "origin": "original set"
   },
   {
     "question": "How many cameras and what type of LiDAR does each CAV in OPV2V use?",
     "expected_answer": "Each CAV uses 4 RGB cameras (800x600 resolution, 110 degree FOV) and 1 LiDAR with 64 channels, capturing 1.3 million points per second within a 120m range.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p2_c3"]
+    "ground_truth_quote": "4x Camera RGB, 800 × 600 resolution",
+    "origin": "original set"
   },
   {
     "question": "What vehicle sensor setup was used to collect real-world data in Culver City?",
     "expected_answer": "An automated vehicle equipped with a 32-channel LiDAR and two cameras was sent out to Culver City during rush hour to collect sensing data.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p3_c3"]
+    "ground_truth_quote": "equipped with a 32-channel LiDAR and two cameras",
+    "origin": "original set"
   },
   {
     "question": "How many frames, ground truth boxes, and total dataset size does OPV2V provide?",
     "expected_answer": "OPV2V provides 11,464 frames, 232,913 ground truth 3D boxes, and 249.4GB of data across 9 cities.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p4_c0"]
+    "ground_truth_quote": "total file size of 249.4 GB",
+    "origin": "original set"
   },
   {
     "question": "What are the six modules of the Attentive Intermediate Fusion pipeline?",
     "expected_answer": "Metadata Sharing, Feature Extraction, Compression, Feature Sharing, Attentive Fusion, and Prediction Header.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p5_c0"]
+    "ground_truth_quote": "Our model consists of 6 parts",
+    "origin": "original set"
   },
   {
     "question": "According to Table IV, which fusion strategy generally achieves the best object detection performance?",
     "expected_answer": "Intermediate fusion generally achieves the best performance across PIXOR, PointPillar, SECOND, and VoxelNet, except for PIXOR at Culver City.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p6_c0"]
+    "ground_truth_quote": "intermediate fusion achieves the best performance",
+    "origin": "original set"
   },
   {
     "question": "At a 4096x compression rate, how much does detection performance drop, and what is the message delivery time delay?",
     "expected_answer": "Performance drops only marginally, around 3%, and the delivery delay at 4096x compression is only about 5ms.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p7_c5"]
+    "ground_truth_quote": "Even with a 4096x compression rate",
+    "origin": "original set"
   },
   {
     "question": "What does the paper conclude about the Attentive Intermediate Fusion pipeline compared to other fusion methods?",
     "expected_answer": "It outperforms all other fusion methods and achieves state-of-the-art performance even under large compression rates.",
     "source_document": "data/sample_docs/OPV2V.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/OPV2V.pdf_p7_c6"]
+    "ground_truth_quote": "can outperform all other fusion methods",
+    "origin": "original set"
   },
   {
     "question": "What is cooperative perception, according to the summary?",
     "expected_answer": "Cooperative perception refers to the real-time sharing and fusion of sensor data among multiple road actors, such as vehicles, infrastructure units and other connected devices, to overcome the inherent limitations of individual sensing systems.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c1"]
+    "ground_truth_quote": "real-time sharing and fusion of sensor data",
+    "origin": "original set"
   },
   {
     "question": "What three network architectures does cooperative perception span, and what low-latency protocols do they rely on?",
     "expected_answer": "V2V, V2I, and hybrid networks, relying on low-latency protocols such as 5G and dedicated short-range communications.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c1"]
+    "ground_truth_quote": "Architectures span vehicle-to-vehicle (V2V)",
+    "origin": "original set"
   },
   {
     "question": "Why are data compression, synchronisation, and security mechanisms important in cooperative perception systems?",
     "expected_answer": "They are crucial to ensuring reliable transmission and protecting against spoofing or malicious injection.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c2"]
+    "ground_truth_quote": "Data compression, synchronisation and security mechanisms",
+    "origin": "original set"
   },
   {
     "question": "What is HYDRO-3D and what does it integrate?",
     "expected_answer": "HYDRO-3D is a hybrid detection and tracking framework for 3D-LiDAR-based cooperative perception that integrates historical object-tracking features with a state-of-the-art detector to generate spatial-temporal feature maps.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c3"]
+    "ground_truth_quote": "introduced HYDRO-3D, a hybrid detection",
+    "origin": "original set"
   },
   {
     "question": "What is CoPnP and what results does it report?",
     "expected_answer": "CoPnP is a collaborative joint perception and prediction system using CAVs and RSUs, reporting double-digit gains in intersection-over-union and video panoptic quality.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c4"]
+    "ground_truth_quote": "proposed CoPnP, a collaborative joint perception",
+    "origin": "original set"
   },
   {
     "question": "What technique does HP3D-V2V use to denoise point clouds?",
     "expected_answer": "HP3D-V2V uses a voxel-based statistical filter to denoise point clouds.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c5"]
+    "ground_truth_quote": "uses a voxel-based statistical filter to denoise",
+    "origin": "original set"
   },
   {
     "question": "What does Bird's-Eye-View (BEV) mean in the context of cooperative perception?",
     "expected_answer": "A top-down projection of sensor data, commonly used to simplify perception and fusion tasks in autonomous driving.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c6"]
+    "ground_truth_quote": "A top-down projection of sensor data",
+    "origin": "original set"
   },
   {
     "question": "What are the three collaboration levels at which agents can share information in cooperative perception?",
     "expected_answer": "Raw sensor data, intermediate feature maps, or processed object-level information like coordinates and velocities.",
     "source_document": "data/sample_docs/Coop-Percep.txt",
-    "ground_truth_chunk_ids": ["data/sample_docs/Coop-Percep.txt_p1_c7"]
+    "ground_truth_quote": "Agents can share raw sensor data, intermediate feature maps",
+    "origin": "original set"
   },
   {
     "question": "What is the title of this project's presentation, and who presented it?",
     "expected_answer": "Optimizing Cooperative Perception in Autonomous Vehicle through Semantic Data Analytics, presented by Li Xian Ng, Jia Xuan Goh, and Pei Shuen Ooi under MDS 17.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p1_c0"]
+    "ground_truth_quote": "Optimizing Cooperative Perception in Autonomous Vehicle",
+    "origin": "original set"
   },
   {
     "question": "What problem does this project's overview slide identify about individual vehicles?",
     "expected_answer": "Every vehicle sees through one pair of eyes, roads are shared but blind spots are not, and objects like trucks or buildings constantly hide things from view.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p2_c0"]
+    "ground_truth_quote": "Every vehicle sees through one pair of eyes",
+    "origin": "original set"
   },
   {
     "question": "What is explicitly listed as out of scope for this project?",
     "expected_answer": "Latency performance and real-time video streaming.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p4_c1"]
+    "ground_truth_quote": "Real-time video streaming",
+    "origin": "original set"
   },
   {
     "question": "What are the three use cases presented for this project?",
     "expected_answer": "Occluded detection, blind intersection, and emergency vehicle.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p5_c0"]
+    "ground_truth_quote": "Project Objective - User Group, Use Cases",
+    "origin": "original set"
   },
   {
     "question": "How does the RSU help an autonomous vehicle react to high occlusion, and how does it reduce communication cost?",
     "expected_answer": "The RSU reveals a hidden car so the AV stops in time when occlusion blocks its view, and it only activates when needed, making it scalable for real-world deployment.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p27_c0"]
+    "ground_truth_quote": "RSU only activates when",
+    "origin": "original set"
   },
   {
     "question": "In the system architecture, what happens when the ego vehicle's detection confidence is 0.30 or below?",
     "expected_answer": "The RSU is activated, and the RSU Pi, also running YOLOv8n, sends its detection result via JSON file transfer for fusion.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p29_c0"]
+    "ground_truth_quote": "Confidence ≤ 0.30?",
+    "origin": "original set"
   },
   {
     "question": "What is the minimum viable JPEG quality for reliable object detection, and how much smaller is the transmission compared to full quality?",
     "expected_answer": "Q=30 is the minimum viable quality, giving 94% smaller transmission size compared to full quality.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p30_c0"]
+    "ground_truth_quote": "Q = 30 is our minimum viable quality",
+    "origin": "original set"
   },
   {
     "question": "How much less data is transmitted when the RSU sends semantic detection results instead of raw images?",
     "expected_answer": "Up to 99.9% less data transmitted, from a 192.55 KB raw image down to a 0.0645 KB semantic-only payload.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p31_c0"]
+    "ground_truth_quote": "Up to 99.9% less data transmitted",
+    "origin": "original set"
   },
   {
     "question": "What two deficiencies does the project identify?",
     "expected_answer": "Bounding Box Drift, where hidden vehicle positions are estimated and drift increases from the anchor, and Fixed Confidence Threshold, where the threshold is not adaptive to different environments.",
     "source_document": "data/sample_docs/Final-Presentation-Slide.pdf",
-    "ground_truth_chunk_ids": ["data/sample_docs/Final-Presentation-Slide.pdf_p32_c0"]
+    "ground_truth_quote": "Project Deficiencies",
+    "origin": "original set"
+  },
+  {
+    "question": "What dropout rate does the Transformer (big) model use for English-to-French translation?",
+    "expected_answer": "The Transformer (big) model trained for English-to-French uses a dropout rate of 0.1.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "used dropout rate _Pdrop_ =",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "Why does the sequential nature of RNNs limit training efficiency, and what two approaches have recent work used to improve computational efficiency?",
+    "expected_answer": "The sequential nature of RNNs precludes parallelization within training examples, which becomes critical at longer sequence lengths due to memory constraints. Recent work has improved efficiency through factorization tricks and conditional computation.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "precludes parallelization within training examples",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What does the Transformer architecture dispense with entirely?",
+    "expected_answer": "The Transformer dispenses with recurrence and convolutions entirely, based solely on attention mechanisms.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "dispensing with recurrence and convolutions",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the Transformer paper, what type of models have not been able to attain state-of-the-art results in small-data regimes for English constituency parsing?",
+    "expected_answer": "RNN sequence-to-sequence models have not been able to attain state-of-the-art results in small-data regimes for English constituency parsing.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "RNN sequence-to-sequence models",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "Why is dot-product attention much faster and more space-efficient than additive attention in the Transformer architecture?",
+    "expected_answer": "Dot-product attention is faster and more space-efficient because it can be implemented using highly optimized matrix multiplication code.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "highly optimized matrix multiplication code",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the Transformer's attention mechanism, what computes the weight assigned to each value?",
+    "expected_answer": "The weight assigned to each value is computed by a compatibility function of the query with the corresponding key.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "compatibility function of the query",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the Transformer's decoder, why is the self-attention sub-layer modified?",
+    "expected_answer": "The self-attention sub-layer in the Transformer's decoder is modified to prevent positions from attending to subsequent positions.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "prevent positions from attending to subsequent positions",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How long did the Transformer model need to be trained to reach a new state of the art in translation quality, and on what hardware?",
+    "expected_answer": "The Transformer was trained for as little as twelve hours on eight P100 GPUs.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "as little as twelve hours",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How long did each training step take for the big Transformer models?",
+    "expected_answer": "Each training step took 1.0 seconds for the big Transformer models.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "step time was 1.0 seconds",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "According to the Attention Is All You Need paper, what types of networks have been firmly established as state of the art in sequence modeling and transduction problems?",
+    "expected_answer": "Recurrent neural networks, long short-term memory, and gated recurrent neural networks have been firmly established as state of the art approaches in sequence modeling and transduction problems.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "state of the art approaches",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "Why did the Transformer model's authors choose sinusoidal functions for positional encoding?",
+    "expected_answer": "They hypothesized it would allow the model to easily learn to attend by relative positions, since for any fixed offset k, PEpos+k can be represented as a linear function of PEpos.",
+    "source_document": "data/eval_docs/attention_is_all_you_need.pdf",
+    "ground_truth_quote": "easily learn to attend by relative",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What is the purpose of the [CLS] symbol in BERT?",
+    "expected_answer": "[CLS] is a special symbol added in front of every input example in BERT.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "special symbol added in front",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What are the two strategies for applying pre-trained language representations to downstream tasks in BERT?",
+    "expected_answer": "The two strategies are the feature-based approach and the fine-tuning approach.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "minimal task-specific parameters",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In BERT's next sentence prediction task, what percentage of the time is sentence B the actual next sentence that follows sentence A?",
+    "expected_answer": "50% of the time, sentence B is the actual next sentence that follows sentence A.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "50% of the time B is the actual next",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What dataset is excluded from the Average column in the GLUE benchmark results for BERT?",
+    "expected_answer": "The problematic WNLI set is excluded from the Average column in the GLUE benchmark results.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "we exclude the problematic WNLI set",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What mechanism does BERT use instead of the common pattern of independently encoding text pairs and then applying bidirectional cross attention?",
+    "expected_answer": "BERT uses the self-attention mechanism to unify these two stages, encoding a concatenated text pair with self-attention to effectively include bidirectional cross attention between sentences.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "BERT instead uses the self-attention mechanism",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What three types of embeddings are summed together to form the BERT input representation?",
+    "expected_answer": "The BERT input embeddings are the sum of token embeddings, segmentation embeddings, and position embeddings.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "token embeddings, the segmentation embeddings",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What type of self-attention does the BERT Transformer use, and how does it differ from GPT?",
+    "expected_answer": "The BERT Transformer uses bidirectional self-attention, while the GPT Transformer uses constrained self-attention where every token can only attend to context to its left.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "uses bidirectional self-attention",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "Why is the pre-training and fine-tuning mismatch expected to be amplified for the feature-based approach in BERT's NER task?",
+    "expected_answer": "Because the model will not have the chance to adjust the representations during fine-tuning.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "have the chance to adjust the representations",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the BERT paper, which researchers used left-to-right language modeling objectives to pretrain word embedding vectors?",
+    "expected_answer": "Mnih and Hinton (2009) used left-to-right language modeling objectives to pretrain word embedding vectors.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "left-to-right language modeling objectives",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How many labeled training examples does the MRPC dataset have in the GLUE benchmark?",
+    "expected_answer": "The MRPC dataset only has 3,600 labeled training examples.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "3,600 labeled training examples",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What type of architecture does OpenAI GPT use for pre-training?",
+    "expected_answer": "OpenAI GPT uses a left-to-right architecture, where every token can only attend to previous tokens in the self-attention layers of the Transformer.",
+    "source_document": "data/eval_docs/bert.pdf",
+    "ground_truth_quote": "the authors use a left-toright architecture",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In RAG models, what serves as the non-parametric memory and how is it accessed?",
+    "expected_answer": "The non-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "dense vector index of Wikipedia",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What are the three classification categories required by the FEVER task?",
+    "expected_answer": "FEVER requires classifying claims as supported, refuted, or having not enough information to decide.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "supported or refuted by Wikipedia",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the RAG paper's open-domain question generation task, what does the Jeopardy format consist of trying to do?",
+    "expected_answer": "The Jeopardy format consists of trying to guess an entity from a fact about that entity.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "guess an entity from a fact",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the RAG paper, why do the CuratedTrec and WebQuestions models initialize with the Natural Questions RAG model?",
+    "expected_answer": "Because CuratedTrec and WebQuestions are small datasets, following DPR, they initialize their models with the NQ RAG model.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "As CT and WQ are small",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What does the RAG-Token model allow the generator to do when producing an answer?",
+    "expected_answer": "The RAG-Token model allows the generator to choose content from several documents when producing an answer.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "choose content from several documents",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the RAG paper, what percentage gap to state-of-the-art pipeline models was achieved on FEVER fact verification?",
+    "expected_answer": "The models achieved results within 4.3% of state-of-the-art pipeline models on FEVER fact verification.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "within 4.3% of state-of-the-art",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the RAG paper's CuratedTrec preprocessing, how many documents are retrieved for each query?",
+    "expected_answer": "The top 1000 documents are retrieved for each query.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "retrieve the top 1000 documents",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What capability does the retrieval index in RAG models provide that avoids the need for retraining?",
+    "expected_answer": "The retrieval index in RAG models can be hot-swapped to update the model without requiring any retraining.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "can be hot-swapped to update the model",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the index hot-swapping demonstration for RAG, how many world leaders were prepared to compare outputs between the December 2016 DrQA Wikipedia dump index and the December 2018 index?",
+    "expected_answer": "82 world leaders who had changed were prepared for the comparison between the two RAG indexes.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "a list of 82 world leaders who had",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How many open domain QA tasks did RAG set the state of the art on?",
+    "expected_answer": "RAG set the state of the art on three open domain QA tasks, outperforming parametric seq2seq models and task-specific retrieve-and-extract architectures.",
+    "source_document": "data/eval_docs/rag_knowledge_intensive_nlp.pdf",
+    "ground_truth_quote": "set the state of the art on three",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What are the example corpus sizes for open-domain QA systems in dense passage retrieval?",
+    "expected_answer": "The corpus can range from millions of documents (e.g., Wikipedia) to billions (e.g., the Web).",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "millions of documents",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What Top-1 retrieval accuracy does the Gold training data achieve on the Natural Questions development set?",
+    "expected_answer": "The Gold training data achieves a Top-1 retrieval accuracy of 44.9 on the Natural Questions development set.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "Retrieval accuracy on the development set",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "According to the dense passage retrieval study, what did the authors find about Wang et al. (2019)'s proposal of splitting documents into overlapping passages?",
+    "expected_answer": "The authors did not find overlapping passages advantageous compared to the non-overlapping version.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "splitting documents into overlapping passages",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How many passages make up the Wikipedia corpus used in dense passage retrieval, and what is the word length of each passage?",
+    "expected_answer": "The Wikipedia corpus used in dense passage retrieval consists of 21,015,324 passages, each containing 100 words.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "21,015,324 passages in the end",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In dense passage retrieval, what is cosine equivalent to for unit vectors?",
+    "expected_answer": "Cosine is equivalent to inner product for unit vectors.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "cosine is equivalent to inner product",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What does REALM (Guu et al., 2020) add to the joint training approach of Lee et al. (2019)?",
+    "expected_answer": "REALM extends the approach by tuning the passage encoder asynchronously through re-indexing the passages during training.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "re-indexing the passages during training",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the context of open-domain question answering with dense passage retrieval, what does higher retrieval precision translate to?",
+    "expected_answer": "Higher retrieval precision translates to higher end-to-end QA accuracy.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "higher retrieval precision indeed translates",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "How long does building a FAISS index on 21-million vectors take on a single server?",
+    "expected_answer": "Building the FAISS index on 21-million vectors on a single server takes 8.5 hours.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "takes 8.5 hours",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the dense retrieval example using the Lord of the Rings question \"Who is the bad guy in lord of the rings?\", who is the actor identified as portraying the villain Sauron?",
+    "expected_answer": "Sala Baker is best known for portraying the villain Sauron in the Lord of the Rings trilogy.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "Sala Baker is best known for",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What types of semi-structured data does DrQA's pre-processing remove from the English Wikipedia dump?",
+    "expected_answer": "It removes tables, infoboxes, lists, and disambiguation pages.",
+    "source_document": "data/eval_docs/dense_passage_retrieval.pdf",
+    "ground_truth_quote": "semi-structured data, such as tables",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the context of solving Partial Differential Equations, why do the Multigrid method and hierarchical basis preconditioning converge faster than standard solvers?",
+    "expected_answer": "They converge much faster because standard solvers are unaware of the residual nature of the solutions.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "unaware of the residual nature",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What depth range do \"very deep\" models exploit for results on the ImageNet dataset?",
+    "expected_answer": "\"Very deep\" models have a depth of sixteen to thirty.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "a depth of sixteen",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "On the MS COCO validation set, how many percentage points did ResNet-101's mAP@[.5, .95] improve over VGG-16?",
+    "expected_answer": "ResNet-101 achieved a 6% increase of mAP@[.5, .95] over VGG-16, which represents a 28% relative improvement.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "6% increase of mAP@[.5, .95]",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What are the multiple image scales used in the fully-convolutional testing of ResNet on ImageNet?",
+    "expected_answer": "The images are resized such that the shorter side is in {224, 256, 384, 480, 640}.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "the shorter side is in",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the Residual Network, what does option (A) do when the dimensions increase?",
+    "expected_answer": "Option (A) in the Residual Network has the shortcut still perform identity mapping, with extra zero entries padded for increasing dimensions.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "with extra zero entries padded for increasing dimensions",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In residual learning, what is the residual function that stacked nonlinear layers are hypothesized to approximate?",
+    "expected_answer": "The residual function is defined as H(x) − x, assuming that the input and output are of the same dimensions.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "approximate the residual functions",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What center-crop error does the RPN method using ResNet-101 achieve with ground truth classes?",
+    "expected_answer": "The RPN method using ResNet-101 reduces the center-crop error to 13.3%.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "error to 13.3%",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What is the test error of the 1202-layer deep residual network?",
+    "expected_answer": "The test error of the 1202-layer network is 7.93%.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "test error is still fairly good",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What was the depth of the deepest residual network presented on ImageNet in the deep residual learning paper?",
+    "expected_answer": "The 152-layer residual net was the deepest network ever presented on ImageNet at that time.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "152layer residual net is the deepest",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In ResNet bottleneck architectures, what happens to time complexity and model size if the identity shortcut is replaced with projection?",
+    "expected_answer": "Time complexity and model size are doubled, because the shortcut is connected to the two high-dimensional ends.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "time complexity and model size are doubled",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In the deep residual learning paper, what happens to the training and test error when using 56-layer \"plain\" networks compared to 20-layer ones on CIFAR-10?",
+    "expected_answer": "The deeper (56-layer) network has higher training error, and thus higher test error.",
+    "source_document": "data/eval_docs/deep_residual_learning.pdf",
+    "ground_truth_quote": "The deeper network has higher",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In LoRA, with r = 4 and only the query and value projection matrices being adapted, what is the checkpoint size reduced from and to?",
+    "expected_answer": "The checkpoint size is reduced from 350GB to 35MB.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "from 350GB to 35MB",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What parameter budget does LoRA use when evaluating which weight matrices to adapt on GPT-3 175B?",
+    "expected_answer": "LoRA uses a parameter budget of 18M (roughly 35MB if stored in FP16) when determining which weight matrices to adapt on GPT-3 175B.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "a parameter budget of 18M",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What makes fine-tuning GPT-3 175B challenging in LoRA?",
+    "expected_answer": "Fine-tuning GPT-3 175B is challenging because of the large checkpoint it produces and the high hardware barrier to entry, since it has the same memory footprint as pre-training.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "same memory footprint as pre-training",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In LoRA, what modules are frozen for downstream tasks, and what are the reasons given for this choice?",
+    "expected_answer": "LoRA freezes the MLP modules, both for simplicity and parameter-efficiency.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "both for simplicity and parameter-efficiency",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "In LoRA, what initialization is used for the matrices A and B?",
+    "expected_answer": "LoRA uses a random Gaussian initialization for A and zero initialization for B, so that ∆W = BA is zero at the beginning of training.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "random Gaussian initialization",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What does the LoRA method keep frozen while indirectly training dense layers?",
+    "expected_answer": "LoRA keeps the pre-trained weights frozen while optimizing rank decomposition matrices of the dense layers' change during adaptation.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "keeping the pre-trained weights frozen",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What is the effect of setting the LoRA rank r to the rank of the pre-trained weight matrices in LoRA?",
+    "expected_answer": "It roughly recovers the expressiveness of full fine-tuning.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "the expressiveness of full fine-tuning",
+    "origin": "drafted by llm, reviewed"
+  },
+  {
+    "question": "What does the theoretical result from Allen-Zhu & Li (2020b) suggest about low-rank adaptations in the context of LoRA?",
+    "expected_answer": "Allen-Zhu & Li (2020b) suggests that low-rank adaptations can be useful for adversarial training.",
+    "source_document": "data/eval_docs/lora.pdf",
+    "ground_truth_quote": "low-rank adaptations can be useful",
+    "origin": "drafted by llm, reviewed"
   }
 ]

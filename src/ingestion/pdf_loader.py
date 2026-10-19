@@ -8,13 +8,16 @@ papers) and keeps the text in the right reading order.
 
 import pymupdf4llm
 
+from src.ingestion import text_cleaner
+
 def load_pdf(file_path: str) -> list[dict]:
     # convert every page of the pdf into markdown text
     pdf_pages = pymupdf4llm.to_markdown(file_path, page_chunks=True)
     pages = []
 
     for i, pdf_page in enumerate(pdf_pages):
-        text = pdf_page["text"]
+        # remove the markdown noise from the page text
+        text = text_cleaner.clean_if_enabled(pdf_page["text"])
 
         # skip blank pages
         if not text or not text.strip():

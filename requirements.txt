@@ -33,9 +33,6 @@ langchain-huggingface==0.3.1
 # environment variable management
 python-dotenv==1.0.1
 
-# reranking is handled via dashscope (qwen3-rerank); sentence-transformers is no longer required
-# sentence-transformers==3.0.1
-
 # web ui for the demo app
 streamlit == 1.38.0
 

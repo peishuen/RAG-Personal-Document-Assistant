@@ -34,10 +34,10 @@
   <text x="735" y="300" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f2937">Semantic</text>
   <text x="735" y="320" text-anchor="middle" font-size="12" fill="#374151">Embedding retrieval</text>
 
-  <!-- Stage 5: Hybrid Rank and Rerank -->
+  <!-- Stage 5: Rank Fusion -->
   <rect x="880" y="165" width="170" height="70" rx="10" fill="#f3e8ff" stroke="#7c3aed" stroke-width="2"/>
-  <text x="965" y="192" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Hybrid Rank</text>
-  <text x="965" y="210" text-anchor="middle" font-size="12" fill="#374151">+ Rerank</text>
+  <text x="965" y="192" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Rank Fusion</text>
+  <text x="965" y="210" text-anchor="middle" font-size="12" fill="#374151">BM25 + semantic (RRF)</text>
 
   <!-- Stage 6: Ground and Generate -->
   <rect x="1090" y="165" width="170" height="70" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>

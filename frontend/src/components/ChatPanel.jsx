@@ -18,7 +18,7 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import { askQuestion, getSession } from "../api.js";
+import { askQuestionStream, getSession } from "../api.js";
 import { clearPending, markPending } from "../pendingRequests.js";
 
 // check for the grounding result every second, up to 10 times
@@ -119,8 +119,30 @@ export default function ChatPanel({ hasDocuments, sessionId, selectedSources, tu
       return [...prev, { question, pending: true }];
     });
 
-    // wait for the backend to return the answer
-    const turn = await askQuestion(forSessionId, question, selectedSources);
+    // read the answer as it streams in, and show each new piece at once
+    let turn;
+    try {
+      turn = await askQuestionStream(forSessionId, question, selectedSources, (text) => {
+        // ignore pieces that arrive after the user switched session
+        if (forSessionId !== activeSessionIdRef.current) return;
+        setTurns((prev) => {
+          const updated = [...prev];
+          const current = updated[turnIndex];
+          if (current && current.pending) {
+            updated[turnIndex] = { ...current, streamText: (current.streamText || "") + text };
+          }
+          return updated;
+        });
+      });
+    } catch (error) {
+      // drop the waiting turn and unlock the input when the request fails
+      clearPending(forSessionId);
+      setSending(false);
+      if (forSessionId === activeSessionIdRef.current) {
+        setTurns((prev) => prev.filter((_, index) => index !== turnIndex));
+      }
+      return;
+    }
     clearPending(forSessionId);
     setSending(false);
     onAnswered();
@@ -193,8 +215,12 @@ export default function ChatPanel({ hasDocuments, sessionId, selectedSources, tu
                     <Sparkles size={13} />
                   </div>
 
-                  {/* show a loading bar while waiting, then show the answer */}
-                  {turn.pending ? (
+                  {/* show a loading bar while waiting, the streaming text as it arrives, then the full answer */}
+                  {turn.pending && turn.streamText ? (
+                    <div className="flex-1 min-w-0 text-slate-700 whitespace-pre-wrap leading-relaxed">
+                      {renderAnswer(turn.streamText, i)}
+                    </div>
+                  ) : turn.pending ? (
                     <div className="flex-1 pt-2.5">
                       <div className="h-1.5 w-32 bg-teal-100 rounded-full loading-bar-track text-teal-500">
                         <div className="loading-bar-fill" />

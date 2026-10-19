@@ -9,13 +9,14 @@ Upload your own documents and ask questions in plain language. You get a direct 
 
 - **Multi-format ingestion:** PDFs, text files, and scanned reports (OCR is used only when a page has no selectable text)
 - **Adaptive chunking:** chunk size and overlap change with the document type
-- **Hybrid retrieval:** BM25 (keywords) plus semantic search (embeddings), merged by rank, then reranked with `qwen3-rerank`
+- **Hybrid retrieval:** BM25 (keywords) plus semantic search (embeddings), merged by reciprocal rank fusion
 - **Cross-document Q&A:** upload many files at once, and optionally limit a question to chosen files
 - **Grounding check:** an LLM fact-checks each answer against the retrieved chunks
 - **Source citation:** every `[Source N]` in an answer links to the file, page and chunk it came from
-- **Chat sessions:** conversations are saved and can be resumed, and follow-up questions are rewritten to stand alone
+- **Chat sessions:** conversations are saved and can be resumed, and follow-up questions are rewritten to stand alone (only when they need it)
+- **Streamed answers:** the answer text appears as it is written
 - **Optional access key:** protect the API with a token, or sign in with a magic link
-- **Evaluation:** Precision@K, Recall@K and answer correctness for BM25, semantic and hybrid search
+- **Evaluation and monitoring:** Recall@K and MRR for BM25, semantic and hybrid search, an LLM-judged answer score, a held-out question set, a grounding-check test, and per-request latency and token logging
 
 ## Tech stack
 
@@ -25,7 +26,6 @@ Upload your own documents and ask questions in plain language. You get a direct 
 | Vector store | ChromaDB | cosine similarity |
 | Keyword search | BM25 (`rank_bm25`) | |
 | Embeddings | Qwen via Alibaba DashScope | `qwen3.7-text-embedding` |
-| Reranker | Qwen via DashScope | `qwen3-rerank` |
 | LLM | Qwen via DashScope | `qwen3.8-flash` |
 | OCR | Tesseract | used only for pages with no text |
 | Backend | FastAPI | |
@@ -41,7 +41,7 @@ Upload your own documents and ask questions in plain language. You get a direct 
 2. **Chunk:** split pages into smaller pieces
 3. **Embed and store:** turn chunks into vectors and save them in ChromaDB
 4. **Retrieve:** run BM25 and semantic search on the question
-5. **Rank:** merge the two lists and rerank the top results
+5. **Rank:** merge the two lists by rank (reciprocal rank fusion) and keep the top chunks
 6. **Generate and ground:** the LLM answers from the chunks, then the answer is fact-checked
 7. **Cite:** return the answer with its sources
 
@@ -51,13 +51,14 @@ Upload your own documents and ask questions in plain language. You get a direct 
 ├── backend/            # fastapi app: main.py + routers (documents, sessions, chat)
 ├── frontend/           # react app: App.jsx, api.js, components (Document, Session, Chat panels)
 ├── src/                # the rag pipeline
-│   ├── ingestion/      # pdf, text and ocr loaders, batch loader, sample docs
+│   ├── ingestion/      # pdf, text and ocr loaders, text cleaner, batch loader, sample docs
 │   ├── chunking/
 │   ├── embeddings/
 │   ├── vectorstore/    # chromadb helpers and seeding
 │   ├── retrieval/      # bm25, semantic, hybrid ranker, cross-document search
 │   ├── generation/     # llm client, prompts, query rewriter, grounding check, generator
 │   ├── citation/
+│   ├── metrics/        # times each step and counts tokens, logged to data/metrics.jsonl
 │   └── session/        # saves chats as json files
 ├── data/
 │   ├── sample_docs/    # 3 sample files
@@ -80,7 +81,7 @@ Easiest: use the [live demo](https://rag-personal-document-assistant.onrender.co
 |---|---|
 | Python 3.11 | backend and pipeline |
 | Node.js | React frontend |
-| DashScope API key | embeddings, reranking and answers |
+| DashScope API key | embeddings and answers |
 | Tesseract (on PATH, or at the default Windows install path) | scanned PDFs only |
 
 ```bash
@@ -103,7 +104,7 @@ APP_ACCESS_TOKEN=
 | Variable | Purpose |
 |---|---|
 | `DASHSCOPE_API_KEY` | your DashScope key (required) |
-| `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings and reranking |
+| `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings |
 | `DASHSCOPE_OPENAI_BASE_URL` | endpoint for the language model |
 | `APP_ACCESS_TOKEN` | optional, leave empty for no login |
 
@@ -146,19 +147,52 @@ On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, 
 3. Ask a question, or start from a suggestion
 4. Read the answer, check the grounding badge, and click a `[Source N]` badge to see where it came from
 
+## Performance
+
+Measured on the live app with one document (details, method and per-question tables: [latency_report.md](evaluation/results/latency_report.md)):
+
+| | Original (3 questions) | Now (15 questions) |
+|---|---|---|
+| Complete answer, median | 17.9 s | 5.9 s |
+| Grounding check (runs after the answer is sent), median | 146.9 s | 4.0 s |
+| Chat tokens per question (answer + grounding) | about 8,600 | about 1,530 |
+| Rerank tokens per search | about 2,300 | 0 (reranker removed) |
+
+A plain question was already about 5.5 s and is about 5.7 s now. The gains come from questions that used to trigger a slow follow-up rewrite, the grounding check, and tokens. The levers were capping the model's thinking budget, rewriting only follow-ups and removing the reranker. The original run is only 3 questions, so read the figures as approximate.
+
 ## Evaluation
 
-A labeled question set (`evaluation/qa_dataset.json`) marks the chunks that contain each correct answer. Run `python evaluation/evaluation.py` to measure:
+87 labeled questions over 9 documents, each with an exact quote marking where its answer lives. It runs on a separate database, so your own data is never touched.
 
-- **Retrieval:** Precision@K and Recall@K for BM25, semantic and hybrid search
-- **Answers:** whether the generated answer is close in meaning to the expected one
-- **Embeddings:** `evaluation/embedding_comparison.py` compares DashScope with a local model
+| Search (top 5, Qwen embeddings) | Recall@5 | MRR@5 |
+|---|---|---|
+| BM25 | 0.920 | 0.838 |
+| Semantic | 0.931 | 0.823 |
+| **Rank fusion of both (the app)** | **0.966** | **0.883** |
 
-Results are saved in `evaluation/results/`.
+- **Answers:** an LLM judge graded 30 answers as 28 correct, 2 partial, 0 wrong.
+- **Biggest win:** the BM25 tokenizer fix (strip punctuation, drop stop words) took BM25 recall from 0.77 to 0.92.
+- **No reranker:** a Qwen reranker was tried and removed. It cost about 7,400 tokens per search, and rank fusion alone was nearly as good.
+- **Held-out test:** on 19 harder questions written after tuning (paraphrased, cross-document, unanswerable), recall was about 0.82 (wide margin of error), and all 5 unanswerable questions were declined correctly.
+- **Grounding check:** it caught 92% to 96% of deliberately damaged answers, with no false alarms.
+
+The development questions share wording with their sources, so treat 0.966 as the optimistic figure. Full results, confidence intervals and limitations: [evaluation_report.md](evaluation/results/evaluation_report.md).
+
+```bash
+python evaluation/download_eval_docs.py       # fetch the 6 arXiv papers
+python evaluation/build_eval_db.py            # build the separate eval database
+python evaluation/evaluation.py --answers 30  # retrieval metrics and graded answers
+python evaluation/ablation.py                 # search methods and chunk size comparison
+python evaluation/tuning.py                   # BM25 tokenizer and fusion experiments
+python evaluation/final_comparison.py         # original vs tuned, on dev and held-out questions
+python evaluation/grounding_eval.py 30        # how well the grounding check catches damaged answers
+```
+
+Token cost: the answer-grading scripts (`evaluation.py`, `final_comparison.py`, `grounding_eval.py`) use the chat model, roughly 60k to 330k tokens each. The others only embed the questions (a few thousand tokens). `evaluation/embedding_comparison.py` compares DashScope with a local embedding model.
 
 ## Future improvements
 
-- Benchmark latency and cost on larger document sets
+- Benchmark latency on larger document sets and other document types (so far it is one document), and measure cost in money as well as tokens
 - Keep uploads and sessions after a redeploy, for example with a persistent disk or a hosted database
 
 ## Author

@@ -4,8 +4,15 @@ bm25 gives a higher score to chunks that share more words with the question,
 so it works well when the question uses the same words as the document.
 """
 
+import re
+
 from rank_bm25 import BM25Okapi
 from src.vectorstore.chroma_store import get_collection
+
+# list common english words that carry little meaning, so they do not count as keyword matches
+STOP_WORDS = set("""a an and are as at be been but by can could did do does for from had has have how i if in into is it its
+may more most of on or our so such than that the their then there these they this those to was we were what when where which
+who whom whose why will with would you your""".split())
 
 def load_chunks(collection_name: str = "documents") -> list[dict]:
     # get every stored chunk from chromadb, because bm25 needs all the text to build its index
@@ -18,8 +25,10 @@ def load_chunks(collection_name: str = "documents") -> list[dict]:
     ]
 
 def tokenize(text: str) -> list[str]:
-    # lowercase and split on whitespace
-    return text.lower().split()
+    # lowercase, split into words with punctuation removed, and drop stop words
+    # use \w so accented and non-latin text still works, and "transformer," matches "transformer"
+    # this raised bm25 recall@5 from 0.77 to 0.92 on the evaluation set (see evaluation/tuning.py)
+    return [word for word in re.findall(r"\w+", text.lower()) if word not in STOP_WORDS]
 
 # save the built index for each collection, together with the chunk count
 # rebuild it only when the count changes (after an upload or delete), not on every search
