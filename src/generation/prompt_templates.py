@@ -33,7 +33,9 @@ def build_prompt(query: str, chunks: list[dict], chat_history: list[dict] = None
     Answer the question using only the context below. \n
     Cite the source you used in square brackets, like [Source 1], right after any information you use from it. \n
     If the context does not contain the answer, say you don't know. \n
-    
+    Write in plain text only. Do not use markdown symbols such as ** or # (the chat shows them as raw characters).
+    Use short paragraphs, or simple lines that start with "-" for a list. \n
+
     {history_block}
 
     Context:
