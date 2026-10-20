@@ -12,16 +12,19 @@ export const getToken = () => localStorage.getItem("querio_access_token") || "";
 export const setToken = (token) => localStorage.setItem("querio_access_token", token);
 export const clearToken = () => localStorage.removeItem("querio_access_token");
 
+// ask ngrok to skip its browser warning page, which would otherwise block api calls through a free tunnel
+const NGROK_SKIP = { "ngrok-skip-browser-warning": "1" };
+
 // build the request headers and add the access token if there is one
 const authHeaders = (extra = {}) => {
   const token = getToken();
-  return token ? { "X-Access-Token": token, ...extra } : { ...extra };
+  return token ? { ...NGROK_SKIP, "X-Access-Token": token, ...extra } : { ...NGROK_SKIP, ...extra };
 };
 
 // ask the backend if the token is valid, and treat a network error as not authenticated
 export const verifyAuth = (token) => {
   const t = token !== undefined ? token : getToken();
-  const headers = t ? { "X-Access-Token": t } : {};
+  const headers = t ? { ...NGROK_SKIP, "X-Access-Token": t } : { ...NGROK_SKIP };
   return fetch(`${BASE}/auth/verify`, { headers })
     .then((r) => r.json())
     .catch(() => ({ authenticated: false, auth_required: true }));
