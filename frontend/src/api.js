@@ -38,6 +38,16 @@ export const uploadDocuments = (files) => {
   return fetch(`${BASE}/documents`, { method: "POST", headers: authHeaders(), body: form }).then((r) => r.json());
 };
 
+// get the original text and info of one chunk, and throw the server's message if it fails
+export const getChunk = async (source, page, chunkIndex) => {
+  const params = new URLSearchParams({ source, page, chunk_index: chunkIndex });
+  const response = await fetch(`${BASE}/documents/chunk?${params}`, { headers: authHeaders() });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) throw new Error(data.detail || "Could not load this source");
+  return data;
+};
+
 // delete one document
 export const deleteDocument = (source) =>
   fetch(`${BASE}/documents/${source}`, { method: "DELETE", headers: authHeaders() });

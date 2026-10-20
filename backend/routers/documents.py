@@ -1,12 +1,12 @@
 """
 This file handles the documents api.
-It lets the user upload new files, see the stored files, and delete a file.
+It lets the user upload new files, see the stored files, read one stored chunk, and delete a file.
 Each upload goes through load, chunk, embed and store.
 """
 import hashlib
 import os
 
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File
 
 from src.ingestion.batch_loader import load_document
 from src.chunking.chunker import chunk_pages
@@ -29,6 +29,25 @@ def already_stored(content_hash: str) -> bool:
 @router.get("")
 def get_documents():
     return list_sources()
+
+
+# return the original text and info of one chunk, so the user can see what a citation points to
+@router.get("/chunk")
+def get_chunk(source: str, page: int, chunk_index: int):
+    # build the same chunk id that was used when the chunk was stored
+    chunk_id = f"{source}_p{page}_c{chunk_index}"
+    result = get_collection().get(ids=[chunk_id], include=["documents", "metadatas"])
+
+    # tell the user if the chunk is gone, for example after the document was deleted
+    if not result["ids"]:
+        raise HTTPException(status_code=404, detail="This chunk is no longer stored")
+
+    text = result["documents"][0]
+
+    # hide the content hash, because it is only used internally to spot duplicate files
+    metadata = {key: value for key, value in result["metadatas"][0].items() if key != "content_hash"}
+
+    return {"id": chunk_id, "text": text, "characters": len(text), "metadata": metadata}
 
 
 # receive uploaded files and add the new ones to the database

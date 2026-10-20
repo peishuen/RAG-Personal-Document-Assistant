@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { askQuestionStream, getSession } from "../api.js";
 import { clearPending, markPending } from "../pendingRequests.js";
+import SourceModal from "./SourceModal.jsx";
 
 // check for the grounding result every second, up to 10 times
 // the check finishes a little after the answer, so we need to wait for it
@@ -61,6 +62,8 @@ function renderAnswer(answer, turnIndex) {
 export default function ChatPanel({ hasDocuments, sessionId, selectedSources, turns, setTurns, onAnswered }) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  // keep the source the user clicked, so its pop-up box can show (null means closed)
+  const [openCitation, setOpenCitation] = useState(null);
   const scrollBoxRef = useRef(null);
 
   // scroll to the newest message whenever the turns change
@@ -252,19 +255,20 @@ export default function ChatPanel({ hasDocuments, sessionId, selectedSources, tu
                           </span>
                         )}
 
-                        {/* show each source as a small chip with the file name and page */}
+                        {/* show each source as a small button, and open its original text when clicked */}
                         {turn.citations.map((c) => (
-                          <span
+                          <button
                             key={c.number}
                             id={`turn-${i}-source-${c.number}`}
-                            title={`${c.source} (chunk ${c.chunk_index})`}
-                            className="inline-flex items-center gap-1 text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-2 py-0.5 scroll-mt-4 target:border-teal-400 target:bg-teal-50 target:text-teal-800"
+                            onClick={() => setOpenCitation(c)}
+                            title={`View the original text (${c.source}, chunk ${c.chunk_index})`}
+                            className="inline-flex items-center gap-1 max-w-full text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-2 py-0.5 scroll-mt-4 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 target:border-teal-400 target:bg-teal-50 target:text-teal-800"
                           >
-                            <FileText size={12} />
+                            <FileText size={12} className="shrink-0" />
                             <span className="font-medium text-teal-700">{c.number}</span>
-                            {c.source.split("/").pop()}
-                            <span className="text-slate-400">p.{c.page}</span>
-                          </span>
+                            <span className="truncate">{c.source.split("/").pop()}</span>
+                            <span className="shrink-0 text-slate-400">p.{c.page}</span>
+                          </button>
                         ))}
                       </div>
 
@@ -282,6 +286,9 @@ export default function ChatPanel({ hasDocuments, sessionId, selectedSources, tu
           </div>
         )}
       </div>
+
+      {/* show the pop-up with the original text of the clicked source */}
+      <SourceModal citation={openCitation} onClose={() => setOpenCitation(null)} />
 
       {/* show the input with a round send button */}
       <form
