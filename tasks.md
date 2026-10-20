@@ -74,23 +74,22 @@
 
 ## Phase 12: Frontend Demo and Deployment
 
-- [x] Build a streamlit interface for uploading documents and asking questions
+- [x] Build an interface for uploading documents and asking questions
 - [x] Show the generated answer with its grounding status and source citations
-- [x] Deploy the app to streamlit community cloud for a shareable link
 
 ## Phase 13: Conversational RAG
 
-- [x] Add chat history storage to the streamlit app so prior turns persist within a session
+- [x] Add chat history storage so prior turns persist within a session
 - [x] Build a query rewriting step that condenses the chat history and new question into a standalone query
 - [x] Update the prompt template to include recent conversation turns alongside retrieved context
 - [x] Update the generator to accept and pass chat history through to the prompt
-- [x] Wire history, query rewriting, and generation together in the streamlit app, and display the full conversation thread
+- [x] Wire history, query rewriting, and generation together in the app, and display the full conversation thread
 - [x] Test multi-turn conversations, including follow-up questions and topic switches, to check retrieval and answers stay accurate
 
 ## Phase 14: Frontend Migration (FastAPI + React + Tailwind)
 
 - [x] Build a FastAPI backend exposing the existing pipeline as REST endpoints for documents, sessions, and chat
-- [x] Build a React + Tailwind frontend replicating the Streamlit layout (document and session panels, chat with suggested prompts)
+- [x] Build a React + Tailwind frontend with document and session panels and a chat with suggested prompts
 - [x] Render inline `[Source N]` citations as links to their matching entry in the source list
 - [x] Run the grounding check asynchronously so the answer doesn't wait on it
 - [x] Fix a state bug where switching sessions while a question was still answering could show the question as missing, or apply its answer to the wrong session

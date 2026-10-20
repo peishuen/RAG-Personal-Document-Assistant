@@ -3,7 +3,6 @@
 Upload your own documents and ask questions in plain language. You get a direct answer with the exact source cited.
 
 **Live demo:** private (React frontend on Cloudflare, FastAPI backend on my own machine behind an ngrok tunnel). Ask me for an access link.
-**Original Streamlit version:** [streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/)
 
 ## Features
 
@@ -31,7 +30,6 @@ Upload your own documents and ask questions in plain language. You get a direct 
 | Backend | FastAPI | |
 | Frontend | React, Tailwind CSS, Vite | |
 | Deployment | Cloudflare (frontend), ngrok tunnel to a local FastAPI backend | |
-| Original UI | Streamlit (`app.py`) | |
 
 ## Workflow
 
@@ -68,7 +66,6 @@ Upload your own documents and ask questions in plain language. You get a direct 
 │   └── sessions/       # saved chats
 ├── evaluation/         # labeled qa set, evaluation scripts, results
 ├── testing/            # phase test scripts, build_seed_db.py, ingest_sample_docs.py
-├── app.py              # original streamlit app
 └── requirements.txt
 ```
 
@@ -123,7 +120,6 @@ npm run dev
 |---|---|---|
 | Backend (FastAPI) | `uvicorn backend.main:app --reload --port 8000` | `http://localhost:8000` |
 | Frontend (React) | `npm run dev` in `frontend/` | `http://localhost:5173` (open this one) |
-| Original Streamlit app | `streamlit run app.py` | `http://localhost:8501` (also needs `.env`) |
 
 On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, so the sample docs are ready to query. If you change the sample docs, run `python testing/build_seed_db.py` and commit the new folder.
 

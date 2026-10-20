@@ -1,8 +1,6 @@
 """
 This file saves chat sessions to disk, with one json file for each session.
 This lets a user reload the page and continue an old conversation.
-Streamlit's own session_state cannot do this, because it is empty again
-on every new browser connection.
 """
 
 import json
