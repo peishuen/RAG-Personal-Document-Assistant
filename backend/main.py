@@ -44,10 +44,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Querio API", lifespan=lifespan)
 
-# allow the frontend to call the api from any address
+# read the allowed frontend addresses from the environment, split by commas (empty means any address)
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+
+# allow the frontend to call the api, only from the listed addresses when they are set
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
