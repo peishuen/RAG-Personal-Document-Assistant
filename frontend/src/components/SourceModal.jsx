@@ -10,7 +10,7 @@ import { getChunk } from "../api.js";
 // turn the stored type into a label that is easier to read
 const TYPE_LABELS = {
   pdf: "PDF",
-  scanned: "Scanned PDF (read with OCR)",
+  scanned: "Scanned PDF",
   text: "Text file",
 };
 
