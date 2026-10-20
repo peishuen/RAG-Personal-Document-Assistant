@@ -53,15 +53,28 @@ def _run_grounding_check(session_id: str, turn_index: int, answer: str, chunks: 
     finish_request()
 
 
+def _same_scope_history(turns: list[dict], sources: list[str]) -> list[dict]:
+    # keep only the latest turns that were asked about the same chosen files
+    # so a question about a new document is not mixed up with talk about the old one
+    # turns saved before this field existed have no "sources", so treat them as the same scope
+    current = set(sources)
+    kept = []
+    for turn in reversed(turns):
+        if "sources" in turn and set(turn["sources"]) != current:
+            break
+        kept.append(turn)
+    return list(reversed(kept))
+
+
 def _prepare(session_id: str, body: Question):
     # rewrite the question so it makes sense alone, then find the best 5 chunks
-    prior_turns = load_session(session_id)
+    prior_turns = _same_scope_history(load_session(session_id), body.sources)
     standalone_query = rewrite_query(body.question, prior_turns)
     chunks = cross_document_search(standalone_query, top_k=5, sources=body.sources)
     return prior_turns, standalone_query, chunks
 
 
-def _save_turn(session_id: str, question: str, answer: str, chunks: list[dict]):
+def _save_turn(session_id: str, question: str, answer: str, chunks: list[dict], sources: list[str]):
     # find which chunks the answer cited
     cited = build_cited_answer(answer, chunks)
 
@@ -79,6 +92,7 @@ def _save_turn(session_id: str, question: str, answer: str, chunks: list[dict]):
     # build this turn, and fill the grounding fields later
     turn = {
         "question": question,
+        "sources": sources,
         "answer": cited["answer"],
         "grounded": None,
         "grounding_reason": None,
@@ -107,7 +121,7 @@ def ask_question(session_id: str, body: Question, background_tasks: BackgroundTa
     # follow these steps: rewrite, search, generate, cite, save
     prior_turns, standalone_query, chunks = _prepare(session_id, body)
     answer = generate_answer(standalone_query, chunks, prior_turns)
-    turn, needs_grounding, turn_index = _save_turn(session_id, body.question, answer, chunks)
+    turn, needs_grounding, turn_index = _save_turn(session_id, body.question, answer, chunks, body.sources)
 
     # run the grounding check afterwards in the background
     if needs_grounding:
@@ -142,7 +156,7 @@ def ask_question_stream(session_id: str, body: Question):
                 events.put({"type": "token", "text": piece})
 
             answer = "".join(pieces)
-            turn, needs_grounding, turn_index = _save_turn(session_id, body.question, answer, chunks)
+            turn, needs_grounding, turn_index = _save_turn(session_id, body.question, answer, chunks, body.sources)
             finish_request()
         except Exception as e:
             # log the real error here, and send a short message to the browser
