@@ -2,7 +2,9 @@
 
 Upload your own documents and ask questions in plain language. You get a direct answer with the exact source cited.
 
-**Live demo:** private (React frontend on Cloudflare, FastAPI backend on my own machine behind an ngrok tunnel). Ask me for an access link.
+**Live demo (private):** https://rag-personal-document-assistant.oooi0001.workers.dev/?access_token=YOUR_TOKEN
+
+The demo needs an access key, which I share on request. It works only while my backend is running (see [Deployment](#deployment)).
 
 ## Features
 
@@ -60,41 +62,27 @@ Upload your own documents and ask questions in plain language. You get a direct 
 │   └── session/        # saves chats as json files
 ├── data/
 │   ├── sample_docs/    # 3 sample files
-│   ├── seed_chroma_db/ # prebuilt db with only the sample docs (shipped in the image)
+│   ├── seed_chroma_db/ # prebuilt db with only the sample docs, copied on first start
 │   ├── chroma_db/      # live db (created at runtime)
 │   ├── uploads/        # uploaded files
 │   └── sessions/       # saved chats
 ├── evaluation/         # labeled qa set, evaluation scripts, results
 ├── testing/            # phase test scripts, build_seed_db.py, ingest_sample_docs.py
+├── Dockerfile          # backend image (python, tesseract, dependencies)
+├── docker-compose.yml  # runs the backend and mounts data/
 └── requirements.txt
 ```
 
 ## Setup
 
-To run it locally, you need:
-
-| Requirement | Needed for |
-|---|---|
-| Python 3.11 | backend and pipeline |
-| Node.js | React frontend |
-| DashScope API key | embeddings and answers |
-| Tesseract (on PATH, or at the default Windows install path) | scanned PDFs only |
-
-```bash
-git clone https://github.com/peishuen/RAG-Personal-Document-Assistant.git
-cd RAG-Personal-Document-Assistant
-conda create -n rag-env python=3.11
-conda activate rag-env
-pip install -r requirements.txt
-```
-
-Create a `.env` file in the project root:
+You need a DashScope API key. Clone the repo, then create a `.env` file in the project root:
 
 ```
 DASHSCOPE_API_KEY=your-key-here
 DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
 DASHSCOPE_OPENAI_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 APP_ACCESS_TOKEN=
+CORS_ORIGINS=
 ```
 
 | Variable | Purpose |
@@ -102,48 +90,63 @@ APP_ACCESS_TOKEN=
 | `DASHSCOPE_API_KEY` | your DashScope key (required) |
 | `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings |
 | `DASHSCOPE_OPENAI_BASE_URL` | endpoint for the language model |
-| `APP_ACCESS_TOKEN` | optional, leave empty for no login |
+| `APP_ACCESS_TOKEN` | optional access key. Leave empty for no login. Use a long random string if the backend is public |
+| `CORS_ORIGINS` | optional, the frontend addresses allowed to call the api, separated by commas. Leave empty to allow any |
 
-Run the app:
+### Run the backend
+
+Choose one.
+
+**Docker** (no Python or Tesseract install needed). Install Docker Desktop, then from the project root:
 
 ```bash
-# backend, from the project root
-uvicorn backend.main:app --reload --port 8000
-
-# frontend, in a second terminal
-cd frontend
-npm install
-npm run dev
+docker compose up --build   # first run, or after code changes
+docker compose up           # later runs
 ```
 
-| Interface | Command | Address |
-|---|---|---|
-| Backend (FastAPI) | `uvicorn backend.main:app --reload --port 8000` | `http://localhost:8000` |
-| Frontend (React) | `npm run dev` in `frontend/` | `http://localhost:5173` (open this one) |
+It reads `.env`, serves the api on `http://localhost:8000`, and keeps uploads, chats and the vector database in `data/` on your computer.
+
+**Conda** (needs Python 3.11, and Tesseract for scanned PDFs, either on PATH or at the default Windows install path):
+
+```bash
+conda create -n rag-env python=3.11
+conda activate rag-env
+pip install -r requirements.txt
+uvicorn backend.main:app --reload --port 8000
+```
+
+### Run the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev     # open http://localhost:5173
+```
 
 On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, so the sample docs are ready to query. If you change the sample docs, run `python testing/build_seed_db.py` and commit the new folder.
 
 ## Deployment
 
-| Part | Where | Detail |
-|---|---|---|
-| Frontend | Cloudflare (Workers static assets) | built from the `frontend` folder with `npm run build`, config in `frontend/wrangler.jsonc` |
-| Backend | local machine, in Docker (`docker compose up`) or with `uvicorn backend.main:app --port 8000` | uploads, sessions and embeddings stay on disk in `data/` |
-| Tunnel | ngrok static domain | gives the local backend a public https address |
+The frontend and backend are hosted separately.
 
-| Setting | Where | Purpose |
+| Part | Where | How |
+|---|---|---|
+| Frontend | Cloudflare (static assets) | built from `frontend/` with `npm run build`, config in `frontend/wrangler.jsonc` |
+| Backend | my own computer, in Docker | `docker compose up -d`, data stays in `data/` |
+| Tunnel | ngrok static domain | `ngrok http --url=<your-domain>.ngrok-free.dev 8000` gives the backend a public https address |
+
+Settings that connect them:
+
+| Setting | Where | Value |
 |---|---|---|
 | `VITE_API_BASE_URL` | Cloudflare build variable | the tunnel address, ending in `/api` |
-| `CORS_ORIGINS` | backend `.env` | the frontend address, so only it can call the api |
-| `APP_ACCESS_TOKEN` | backend `.env` | private access: open `https://your-frontend/?access_token=YOUR_KEY`, or type the key on the login screen |
+| `CORS_ORIGINS` | backend `.env` | the Cloudflare site address |
+| `APP_ACCESS_TOKEN` | backend `.env` | the access key. Open `https://<frontend>/?access_token=YOUR_TOKEN`, or type the key on the login screen |
 
-To run the backend in Docker instead of conda, install Docker Desktop and run this from the project root. It reads `.env` and keeps `data/` on your computer, so uploads and chats survive restarts:
-
-```bash
-docker compose up --build
-```
-
-The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls. The site only works while the backend and the tunnel are running.
+Notes:
+- The site works only while the backend container and the ngrok tunnel are running.
+- The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls.
+- Uploads and chats persist across restarts because `data/` is mounted from the host.
 
 ## Usage
 
