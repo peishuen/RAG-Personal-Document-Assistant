@@ -21,10 +21,11 @@ def build_header(metadata: dict) -> str:
     return f"Source: {name}, page {metadata['page']}\n"
 
 # set the chunk size and overlap for each document type
-# use bigger chunks with less overlap for pdf, because the text is usually clean
-# use smaller chunks with more overlap for ocr, because the text is noisier
+# use the same small chunks for pdf and scanned, to keep the chunk numbers the same as before
+# the evaluation questions and the seed database use those chunk numbers
+# try bigger chunks for pdf (for example 1000 and 150) only when the evaluation is updated too
 CHUNK_SETTINGS = {
-    "pdf": {"chunk_size": 1000, "chunk_overlap": 150},
+    "pdf": {"chunk_size": 600, "chunk_overlap": 200},
     "text": {"chunk_size": 800, "chunk_overlap": 100},
     "scanned": {"chunk_size": 600, "chunk_overlap": 200}
 }

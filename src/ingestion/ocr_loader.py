@@ -3,6 +3,8 @@ This file reads text from scanned pdfs (pdfs that are really just images).
 It uses OCR (a tool that reads text from pictures) when a page has no real text.
 Pages that already have selectable text go through pymupdf4llm first, which
 handles multi-column layouts and keeps the correct reading order.
+Each page is labeled "pdf" when its text was read normally, and "scanned" only
+when OCR was needed to read it.
 """
 
 import platform
@@ -38,8 +40,12 @@ def load_scanned_pdf(file_path: str) -> list[dict]:
         # try to get the text the normal way first, with the markdown noise removed
         text = text_cleaner.clean_if_enabled(pdf_page["text"])
 
+        # label the page "pdf" by default, and change it to "scanned" only if ocr is needed
+        page_type = "pdf"
+
         # use ocr on the page images if no text was found
         if not text or not text.strip():
+            page_type = "scanned"
             ocr_texts = []
             for image_file in reader.pages[i].images:
                 # convert the embedded image to a format pillow can read
@@ -59,7 +65,7 @@ def load_scanned_pdf(file_path: str) -> list[dict]:
             "metadata": {
                 "source": file_path,
                 "page": i + 1,
-                "type": "scanned"
+                "type": page_type
             }
         })
 
