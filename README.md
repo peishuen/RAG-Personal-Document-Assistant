@@ -4,7 +4,7 @@ Upload your own documents and ask questions in plain language. You get a direct 
 
 **Live demo (private):** https://rag-personal-document-assistant.oooi0001.workers.dev/?access_token=YOUR_TOKEN
 
-The demo needs an access key, which I share on request. It works only while my backend is running (see [Deployment](#deployment)).
+The demo is private and needs an access key, which I share on request. See [Deployment](#deployment) for how it is hosted.
 
 ## Features
 
@@ -144,7 +144,6 @@ Settings that connect them:
 | `APP_ACCESS_TOKEN` | backend `.env` | the access key. Open `https://<frontend>/?access_token=YOUR_TOKEN`, or type the key on the login screen |
 
 Notes:
-- The site works only while the backend container and the ngrok tunnel are running.
 - The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls.
 - Uploads and chats persist across restarts because `data/` is mounted from the host.
 
