@@ -1,0 +1,13 @@
+# this file runs the backend container
+# start it with: docker compose up --build
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    # read the secret keys from your .env file
+    env_file: .env
+    # keep uploads, sessions and the vector database on your computer, so they survive restarts
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

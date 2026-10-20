@@ -2,7 +2,7 @@
 
 Upload your own documents and ask questions in plain language. You get a direct answer with the exact source cited.
 
-**Live demo:** [rag-personal-document-assistant.onrender.com](https://rag-personal-document-assistant.onrender.com/) (FastAPI + React, hosted on Render)
+**Live demo:** private (React frontend on Cloudflare, FastAPI backend on my own machine behind an ngrok tunnel). Ask me for an access link.
 **Original Streamlit version:** [streamlit.app](https://peishuen-rag-personal-document-assistant-app-h78qzs.streamlit.app/)
 
 ## Features
@@ -30,7 +30,7 @@ Upload your own documents and ask questions in plain language. You get a direct 
 | OCR | Tesseract | used only for pages with no text |
 | Backend | FastAPI | |
 | Frontend | React, Tailwind CSS, Vite | |
-| Deployment | Docker on Render | |
+| Deployment | Cloudflare (frontend), ngrok tunnel to a local FastAPI backend | |
 | Original UI | Streamlit (`app.py`) | |
 
 ## Workflow
@@ -69,13 +69,12 @@ Upload your own documents and ask questions in plain language. You get a direct 
 ├── evaluation/         # labeled qa set, evaluation scripts, results
 ├── testing/            # phase test scripts, build_seed_db.py, ingest_sample_docs.py
 ├── app.py              # original streamlit app
-├── Dockerfile          # builds the react app, then runs fastapi
 └── requirements.txt
 ```
 
 ## Setup
 
-Easiest: use the [live demo](https://rag-personal-document-assistant.onrender.com/). To run locally, you need:
+To run it locally, you need:
 
 | Requirement | Needed for |
 |---|---|
@@ -128,17 +127,27 @@ npm run dev
 
 On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, so the sample docs are ready to query. If you change the sample docs, run `python testing/build_seed_db.py` and commit the new folder.
 
-## Deployment (Render)
+## Deployment
 
-| Topic | Detail |
-|---|---|
-| Type | Docker web service, built from the `Dockerfile` |
-| Env vars | the same four variables as the `.env` table above |
-| Port | uses Render's `$PORT`, default 10000 |
-| Seeding | a fresh deploy copies the prebuilt sample db instead of running OCR and embedding, which ran out of memory on the 512 MB free tier |
-| Storage | uploads, sessions and new embeddings are lost on redeploy unless you attach a persistent disk |
-| Private access | if `APP_ACCESS_TOKEN` is set, open `https://rag-personal-document-assistant.onrender.com/?access_token=YOUR_KEY`, or type the key on the login screen |
-| Cold starts | the free tier sleeps when idle, so the first request can be slow |
+| Part | Where | Detail |
+|---|---|---|
+| Frontend | Cloudflare (Workers static assets) | built from the `frontend` folder with `npm run build`, config in `frontend/wrangler.jsonc` |
+| Backend | local machine, in Docker (`docker compose up`) or with `uvicorn backend.main:app --port 8000` | uploads, sessions and embeddings stay on disk in `data/` |
+| Tunnel | ngrok static domain | gives the local backend a public https address |
+
+| Setting | Where | Purpose |
+|---|---|---|
+| `VITE_API_BASE_URL` | Cloudflare build variable | the tunnel address, ending in `/api` |
+| `CORS_ORIGINS` | backend `.env` | the frontend address, so only it can call the api |
+| `APP_ACCESS_TOKEN` | backend `.env` | private access: open `https://your-frontend/?access_token=YOUR_KEY`, or type the key on the login screen |
+
+To run the backend in Docker instead of conda, install Docker Desktop and run this from the project root. It reads `.env` and keeps `data/` on your computer, so uploads and chats survive restarts:
+
+```bash
+docker compose up --build
+```
+
+The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls. The site only works while the backend and the tunnel are running.
 
 ## Usage
 
@@ -149,7 +158,7 @@ On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, 
 
 ## Performance
 
-Measured on the live app with one document (details, method and per-question tables: [latency_report.md](evaluation/results/latency_report.md)):
+Measured on the earlier Render deployment with one document (details, method and per-question tables: [latency_report.md](evaluation/results/latency_report.md)):
 
 | | Original (3 questions) | Now (15 questions) |
 |---|---|---|
@@ -193,7 +202,7 @@ Token cost: the answer-grading scripts (`evaluation.py`, `final_comparison.py`, 
 ## Future improvements
 
 - Benchmark latency on larger document sets and other document types (so far it is one document), and measure cost in money as well as tokens
-- Keep uploads and sessions after a redeploy, for example with a persistent disk or a hosted database
+- Host the backend on an always-on server (a VPS with a Docker volume, for example), so the demo does not depend on a personal computer being on
 
 ## Author
 

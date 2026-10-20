@@ -1,20 +1,6 @@
-# this file builds the docker image for the app
-# stage 1 builds the react frontend, stage 2 runs the python fastapi backend
-# and serves the built frontend
+# this file builds the docker image for the fastapi backend
+# the react frontend is deployed separately on cloudflare, so it is not built here
 
-# stage 1: build the react frontend
-FROM node:20-slim AS frontend-builder
-WORKDIR /app/frontend
-
-# install node packages first so docker can cache this step
-COPY frontend/package*.json ./
-RUN npm install
-
-# copy the frontend code and build it into static files
-COPY frontend/ ./
-RUN npm run build
-
-# stage 2: run the python fastapi backend
 FROM python:3.11-slim
 WORKDIR /app
 
@@ -23,24 +9,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
+# install the cpu-only version of pytorch first, which is much smaller than the default one
+# langchain-huggingface needs torch, and this server has no gpu
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
 # install python packages
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy the source code and data
+# copy the source code
+# the data folder is not copied, because docker-compose mounts it from your computer
 COPY src/ ./src/
 COPY backend/ ./backend/
-COPY data/ ./data/
 
-# copy the built frontend from stage 1 into frontend/dist
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+EXPOSE 8000
 
-# create the data folders and allow the app to write to them
-RUN mkdir -p data/uploads data/sessions data/chroma_db && chmod -R 777 data
-
-# set the port (render uses $PORT, default is 10000)
-ENV PORT=10000
-EXPOSE 10000
-
-# start the server on all network addresses
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+# start the server on all network addresses inside the container
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -30,7 +30,7 @@ APP_ACCESS_TOKEN = os.getenv("APP_ACCESS_TOKEN", "").strip()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # copy the prebuilt sample database on startup, because a fresh deploy has an empty chroma_db
-    # use a plain file copy instead of running ocr and embedding, which ran out of memory on render
+    # use a plain file copy instead of running ocr and embedding, which ran out of memory on a small host
     # ignore errors here, so a failed copy does not stop the server from starting
     try:
         if seed_if_empty():

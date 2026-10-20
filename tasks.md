@@ -102,3 +102,12 @@
 - [x] Run BM25 and semantic search concurrently instead of sequentially
 - [x] Cap how many prior turns are included in each prompt, instead of resending the full conversation every time
 - [x] Skip the grounding check entirely when the answer cites no source
+
+## Phase 16: Split Deployment
+
+- [x] Move the React frontend to Cloudflare (static assets, config in `frontend/wrangler.jsonc`)
+- [x] Run the FastAPI backend on a local machine and expose it through an ngrok static domain, so uploads, sessions and embeddings stay on disk
+- [x] Make the allowed frontend addresses configurable with `CORS_ORIGINS`, and send `ngrok-skip-browser-warning` so the free tunnel's warning page does not block api calls
+- [x] Replace the Render Docker setup with a backend-only Dockerfile and `docker-compose.yml` that mounts `data/`
+- [x] Ignore earlier turns about other files when the file selection changes, so a question about a new document is not rewritten with the old document's context
+- [ ] Replace the short access token with a long random one
