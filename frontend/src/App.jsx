@@ -1,23 +1,20 @@
 /*
 This file is the main shell of the app.
-It keeps the shared state (documents, sessions, chat turns), checks the access token,
+It keeps the shared state (documents, sessions, chat turns), checks the invitation link,
 and lays out the screen: documents and sessions on the left, chat on the right.
-It also shows a login screen when the user is not allowed in.
+It shows an invite-only screen when the user did not come from a valid invitation link.
 */
 import { useEffect, useState } from "react";
-import { FileSearch, Lock, KeyRound, AlertCircle, Loader2 } from "lucide-react";
+import { FileSearch, Lock, Loader2 } from "lucide-react";
 import DocumentPanel from "./components/DocumentPanel.jsx";
 import SessionPanel from "./components/SessionPanel.jsx";
 import ChatPanel from "./components/ChatPanel.jsx";
-import { createSession, getDocuments, getSession, getSessions, getToken, setToken, verifyAuth } from "./api.js";
+import { clearInvite, createSession, getDocuments, getSession, getSessions, getInvite, setInvite, verifyInvite } from "./api.js";
 import { getPending } from "./pendingRequests.js";
 
 export default function App() {
-  // track the login state: "loading", "authorized" or "unauthorized"
+  // track the access state: "loading", "authorized", "unauthorized" or "offline"
   const [authStatus, setAuthStatus] = useState("loading");
-  const [inputKey, setInputKey] = useState("");
-  const [authError, setAuthError] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
 
   // keep the shared data used by the panels
   const [documents, setDocuments] = useState([]);
@@ -30,7 +27,7 @@ export default function App() {
   const refreshDocuments = () => getDocuments().then(setDocuments);
   const refreshSessions = () => getSessions().then(setSessions);
 
-  // load the data and start a new chat after login
+  // load the data and start a new chat once the invite is accepted
   const initApp = () => {
     refreshDocuments();
     refreshSessions();
@@ -38,50 +35,37 @@ export default function App() {
   };
 
   useEffect(() => {
-    // look for a magic link token in the url (?access_token=... or ?token=... or ?key=...)
+    // look for the invite code in the url (?invite=...)
     const params = new URLSearchParams(window.location.search);
-    const urlToken = params.get("access_token") || params.get("token") || params.get("key");
-    // use the url token first, then the saved token
-    const tokenToTest = urlToken || getToken();
+    const urlInvite = params.get("invite");
+    // use the code from the link first, then the one saved on an earlier visit
+    const inviteToTest = urlInvite || getInvite();
 
-    verifyAuth(tokenToTest).then((res) => {
+    // hide the code from the address bar, without reloading the page
+    if (urlInvite) {
+      params.delete("invite");
+      const query = params.toString();
+      const cleanUrl = window.location.pathname + (query ? `?${query}` : "") + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
+    verifyInvite(inviteToTest).then((res) => {
       if (res.authenticated) {
-        if (urlToken) {
-          // save the token and hide it from the address bar, without reloading the page
-          setToken(urlToken);
-          const cleanUrl = window.location.pathname + window.location.hash;
-          window.history.replaceState({}, document.title, cleanUrl);
-        }
+        // remember the code, so the next visit works without the link
+        if (urlInvite) setInvite(urlInvite);
         setAuthStatus("authorized");
         initApp();
+      } else if (res.offline) {
+        // keep the code when the server cannot be reached, so it still works once the server is back
+        if (urlInvite) setInvite(urlInvite);
+        setAuthStatus("offline");
       } else {
+        // forget a saved code that no longer works (for example after the invite was changed)
+        clearInvite();
         setAuthStatus("unauthorized");
       }
     });
   }, []);
-
-  // check the access key typed in the login form
-  const handleManualUnlock = (e) => {
-    e.preventDefault();
-    if (!inputKey.trim()) return;
-
-    setIsVerifying(true);
-    setAuthError("");
-
-    verifyAuth(inputKey.trim()).then((res) => {
-      setIsVerifying(false);
-      if (res.authenticated) {
-        setToken(inputKey.trim());
-        setAuthStatus("authorized");
-        initApp();
-      } else {
-        setAuthError("Invalid access key. Please check and try again.");
-      }
-    }).catch(() => {
-      setIsVerifying(false);
-      setAuthError("Failed to verify access key. Please try again.");
-    });
-  };
 
   // clear the chat and start a new session
   const startNewChat = () => {
@@ -99,57 +83,35 @@ export default function App() {
     });
   };
 
-  // show a loading screen while the token is being checked
+  // show a loading screen while the invitation link is being checked
   if (authStatus === "loading") {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50 text-slate-600">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-teal-700" size={28} />
-          <span className="text-sm font-medium tracking-tight">Verifying access...</span>
+          <span className="text-sm font-medium tracking-tight">Checking your invitation...</span>
         </div>
       </div>
     );
   }
 
-  // show the login screen when the token is missing or wrong
-  if (authStatus === "unauthorized") {
+  // show the invite-only screen when there is no valid invitation link, or the server is down
+  if (authStatus === "unauthorized" || authStatus === "offline") {
+    const offline = authStatus === "offline";
     return (
       <div className="h-screen flex items-center justify-center bg-slate-100 p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 p-8 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4 border border-teal-100">
             <Lock size={28} strokeWidth={1.5} />
           </div>
-          <h1 className="text-xl font-medium text-slate-800 tracking-tight">Private project</h1>
+          <h1 className="text-xl font-medium text-slate-800 tracking-tight">
+            {offline ? "Server offline" : "Invite only"}
+          </h1>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-            This document assistant is restricted. Access requires an authorized magic link or access key.
+            {offline
+              ? "The Querio server cannot be reached right now. Please try again later."
+              : "Querio is private. Open it from the invitation link you were sent. If your link stopped working, ask the owner for a new one."}
           </p>
-
-          <form onSubmit={handleManualUnlock} className="w-full mt-6 space-y-3">
-            <div className="relative">
-              <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="password"
-                placeholder="Enter access key..."
-                value={inputKey}
-                onChange={(e) => setInputKey(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition"
-              />
-            </div>
-            {authError && (
-              <div className="flex items-center gap-1.5 text-xs text-rose-600 font-medium text-left">
-                <AlertCircle size={14} className="shrink-0" />
-                <span>{authError}</span>
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={isVerifying || !inputKey.trim()}
-              className="w-full py-2.5 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl text-sm transition flex items-center justify-center gap-2"
-            >
-              {isVerifying && <Loader2 className="animate-spin" size={16} />}
-              <span>Unlock assistant</span>
-            </button>
-          </form>
         </div>
       </div>
     );

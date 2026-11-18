@@ -109,4 +109,5 @@
 - [x] Make the allowed frontend addresses configurable with `CORS_ORIGINS`, and send `ngrok-skip-browser-warning` so the free tunnel's warning page does not block api calls
 - [x] Replace the Render Docker setup with a backend-only Dockerfile and `docker-compose.yml` that mounts `data/`
 - [x] Ignore earlier turns about other files when the file selection changes, so a question about a new document is not rewritten with the old document's context
-- [ ] Replace the short access token with a long random one
+- [x] Replace the access key login with an invitation link (`?invite=<code>`), with no login form
+- [ ] Set a long random `INVITE_CODE` in `.env`

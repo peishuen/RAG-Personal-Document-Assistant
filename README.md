@@ -2,9 +2,9 @@
 
 Upload your own documents and ask questions in plain language. You get a direct answer with the exact source cited.
 
-**Live demo (private):** https://rag-personal-document-assistant.oooi0001.workers.dev/?access_token=YOUR_TOKEN
+**Live demo (invite only):** https://rag-personal-document-assistant.oooi0001.workers.dev
 
-The demo is private and needs an access key, which I share on request. See [Deployment](#deployment) for how it is hosted.
+The demo opens only from an invitation link, which I share on request. See [Deployment](#deployment) for how it is hosted.
 
 ## Features
 
@@ -16,7 +16,7 @@ The demo is private and needs an access key, which I share on request. See [Depl
 - **Source citation:** every `[Source N]` in an answer links to the file, page and chunk it came from
 - **Chat sessions:** conversations are saved and can be resumed, and follow-up questions are rewritten to stand alone (only when they need it)
 - **Streamed answers:** the answer text appears as it is written
-- **Optional access key:** protect the API with a token, or sign in with a magic link
+- **Invitation links:** optionally make the app invite only, so only people with the link can open it
 - **Evaluation and monitoring:** Recall@K and MRR for BM25, semantic and hybrid search, an LLM-judged answer score, a held-out question set, a grounding-check test, and per-request latency and token logging
 
 ## Tech stack
@@ -81,7 +81,7 @@ You need a DashScope API key. Clone the repo, then create a `.env` file in the p
 DASHSCOPE_API_KEY=your-key-here
 DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
 DASHSCOPE_OPENAI_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-APP_ACCESS_TOKEN=
+INVITE_CODE=
 CORS_ORIGINS=
 ```
 
@@ -90,7 +90,7 @@ CORS_ORIGINS=
 | `DASHSCOPE_API_KEY` | your DashScope key (required) |
 | `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings |
 | `DASHSCOPE_OPENAI_BASE_URL` | endpoint for the language model |
-| `APP_ACCESS_TOKEN` | optional access key. Leave empty for no login. Use a long random string if the backend is public |
+| `INVITE_CODE` | optional. Leave empty to let anyone open the app. When set, only the invitation link works. Use a long random string |
 | `CORS_ORIGINS` | optional, the frontend addresses allowed to call the api, separated by commas. Leave empty to allow any |
 
 ### Run the backend
@@ -141,11 +141,17 @@ Settings that connect them:
 |---|---|---|
 | `VITE_API_BASE_URL` | Cloudflare build variable | the tunnel address, ending in `/api` |
 | `CORS_ORIGINS` | backend `.env` | the Cloudflare site address |
-| `APP_ACCESS_TOKEN` | backend `.env` | the access key. Open `https://<frontend>/?access_token=YOUR_TOKEN`, or type the key on the login screen |
+| `INVITE_CODE` | backend `.env` | the code inside the invitation link `https://<frontend>/?invite=<INVITE_CODE>` |
 
 Notes:
 - The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls.
 - Uploads and chats persist across restarts because `data/` is mounted from the host.
+
+Invitation links:
+- Share `https://<frontend>/?invite=<INVITE_CODE>`. There is no login form, so the app cannot be opened without the link
+- The browser saves the code and removes it from the address bar, so later visits work without the link
+- To cut off everyone who has the old link, change `INVITE_CODE` and restart the backend, then share the new link
+- Make a long random code with `python -c "import secrets; print(secrets.token_urlsafe(32))"`
 
 ## Usage
 

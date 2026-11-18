@@ -7,28 +7,27 @@ The components use these helpers, so they never call fetch directly.
 // pick the api address: env variable first, then localhost in dev, then /api in production
 const BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:8000/api" : "/api");
 
-// save, read and remove the access token in the browser
-export const getToken = () => localStorage.getItem("querio_access_token") || "";
-export const setToken = (token) => localStorage.setItem("querio_access_token", token);
-export const clearToken = () => localStorage.removeItem("querio_access_token");
+// save, read and remove the invite code from the invitation link
+const INVITE_KEY = "querio_invite_code";
+export const getInvite = () => localStorage.getItem(INVITE_KEY) || "";
+export const setInvite = (code) => localStorage.setItem(INVITE_KEY, code);
+export const clearInvite = () => localStorage.removeItem(INVITE_KEY);
+
+// drop the key saved by the old access key login, it is no longer used
+localStorage.removeItem("querio_access_token");
 
 // ask ngrok to skip its browser warning page, which would otherwise block api calls through a free tunnel
 const NGROK_SKIP = { "ngrok-skip-browser-warning": "1" };
 
-// build the request headers and add the access token if there is one
-const authHeaders = (extra = {}) => {
-  const token = getToken();
-  return token ? { ...NGROK_SKIP, "X-Access-Token": token, ...extra } : { ...NGROK_SKIP, ...extra };
-};
+// build the request headers and add the invite code if there is one
+const authHeaders = (extra = {}, code = getInvite()) =>
+  code ? { ...NGROK_SKIP, "X-Invite-Code": code, ...extra } : { ...NGROK_SKIP, ...extra };
 
-// ask the backend if the token is valid, and treat a network error as not authenticated
-export const verifyAuth = (token) => {
-  const t = token !== undefined ? token : getToken();
-  const headers = t ? { ...NGROK_SKIP, "X-Access-Token": t } : { ...NGROK_SKIP };
-  return fetch(`${BASE}/auth/verify`, { headers })
+// ask the backend if the invite code is valid, and mark a network error as offline
+export const verifyInvite = (code) =>
+  fetch(`${BASE}/auth/verify`, { headers: authHeaders({}, code) })
     .then((r) => r.json())
-    .catch(() => ({ authenticated: false, auth_required: true }));
-};
+    .catch(() => ({ authenticated: false, auth_required: true, offline: true }));
 
 // get the list of stored documents
 export const getDocuments = () =>

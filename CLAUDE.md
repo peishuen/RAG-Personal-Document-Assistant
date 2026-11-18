@@ -40,7 +40,8 @@ If `docker` is not on PATH in a shell, use `"C:\Program Files\Docker\Docker\reso
 - Frontend: Cloudflare, built from `frontend/` on every push to `main` (config in `frontend/wrangler.jsonc`, build variable `VITE_API_BASE_URL`)
 - Backend: runs on the user's own computer in Docker, with `data/` mounted from the host
 - Tunnel: ngrok static domain. The frontend sends `ngrok-skip-browser-warning` on every api call, so keep that header
-- `.env` holds `DASHSCOPE_*`, `APP_ACCESS_TOKEN` and `CORS_ORIGINS`. Never print, commit or paste their values
+- `.env` holds `DASHSCOPE_*`, `INVITE_CODE` and `CORS_ORIGINS`. Never print, commit or paste their values
+- Access is by invitation link only (`?invite=<INVITE_CODE>`, sent as the `X-Invite-Code` header). There is no login form or typed access key. Do not add one back
 - Render, Streamlit and `app.py` were removed. Do not add them back
 
 ## Decisions to keep
