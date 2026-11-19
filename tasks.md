@@ -119,6 +119,6 @@
 - [x] Add a GitHub Actions CI workflow that builds the frontend, builds the backend image and smoke tests it
 - [x] Add key-free unit tests (chunking, text cleaner, rank fusion, citations) and run them in CI
 - [x] Publish the backend image to GitHub Container Registry on every push to `main`
-- [ ] Create the AWS account (free plan credits) and the EC2 instance
-- [ ] Deploy to EC2 over SSH, with ngrok in a second container, and fail the job if `/health` does not answer
-- [ ] Update the Deployment sections of the README and CLAUDE.md
+- [x] Create the AWS account (free plan credits) and the EC2 instance
+- [x] Deploy to EC2 over SSH, with ngrok in a second container, and fail the job if `/health` does not answer
+- [x] Update the Deployment sections of the README and CLAUDE.md

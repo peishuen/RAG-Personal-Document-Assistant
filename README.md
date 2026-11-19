@@ -31,7 +31,7 @@ The demo opens only from an invitation link, which I share on request. See [Depl
 | OCR | Tesseract | used only for pages with no text |
 | Backend | FastAPI | |
 | Frontend | React, Tailwind CSS, Vite | |
-| Deployment | Cloudflare (frontend), ngrok tunnel to a local FastAPI backend | |
+| Deployment | Cloudflare (frontend), AWS EC2 with Docker (backend), ngrok tunnel | deployed by GitHub Actions |
 
 ## Workflow
 
@@ -68,9 +68,13 @@ The demo opens only from an invitation link, which I share on request. See [Depl
 │   └── sessions/       # saved chats
 ├── evaluation/         # labeled qa set, evaluation scripts, results
 ├── testing/            # phase test scripts, build_seed_db.py, ingest_sample_docs.py
+├── tests/              # unit tests that need no api keys (run in ci)
+├── .github/workflows/  # ci.yml: build, test, publish the image, deploy
 ├── Dockerfile          # backend image (python, tesseract, dependencies)
-├── docker-compose.yml  # runs the backend and mounts data/
-└── requirements.txt
+├── docker-compose.yml  # runs the backend locally and mounts data/
+├── docker-compose.prod.yml  # runs the backend and ngrok on the server
+├── requirements.txt
+└── requirements-dev.txt     # test tools (pytest), used by ci
 ```
 
 ## Setup
@@ -127,25 +131,58 @@ On first start, the backend copies `data/seed_chroma_db` into `data/chroma_db`, 
 
 ## Deployment
 
-The frontend and backend are hosted separately.
+The frontend and backend are hosted separately, and GitHub Actions deploys the backend.
 
 | Part | Where | How |
 |---|---|---|
 | Frontend | Cloudflare (static assets) | built from `frontend/` with `npm run build`, config in `frontend/wrangler.jsonc` |
-| Backend | my own computer, in Docker | `docker compose up -d`, data stays in `data/` |
-| Tunnel | ngrok static domain | `ngrok http --url=<your-domain>.ngrok-free.dev 8000` gives the backend a public https address |
+| Backend | AWS EC2 server (Ubuntu, x86), in Docker | `docker-compose.prod.yml` pulls the image from GitHub Container Registry. `data/` stays on the server |
+| Tunnel | ngrok static domain, a second container on the server | gives the backend a public https address |
+| Pipeline | GitHub Actions | `.github/workflows/ci.yml` |
 
-Settings that connect them:
+### CI/CD pipeline
+
+| Job | What it does | Runs on |
+|---|---|---|
+| `frontend` | installs packages and builds the frontend | pull requests and `main` |
+| `backend` | builds the image, runs the unit tests inside it, then smoke tests the container | pull requests and `main` |
+| `publish` | pushes the image to `ghcr.io/<owner>/querio-backend` (tags `latest` and the commit sha) | `main`, after both jobs above pass |
+| `deploy` | connects to the server over SSH, runs `git pull`, pulls the new image, restarts the containers and waits for the health check. Then it calls `/health` through the public address. The job fails if either check fails | `main`, after `publish` |
+
+The unit tests live in `tests/` and need no api keys. Run them locally with `python -m pytest tests -q`.
+
+### One-time server setup
+
+Do this once, after creating the EC2 instance (Ubuntu, x86, 2 GB of memory or more, 20 GB disk):
+
+1. Install Docker, then clone the repo to `~/querio`. The clone also brings the seed database in `data/seed_chroma_db`.
+2. Run `docker login ghcr.io` on the server with a GitHub token that has only `read:packages`. The image is private.
+3. Create `~/querio/.env` with the variables from [Setup](#setup) and `NGROK_AUTHTOKEN` (from the ngrok dashboard).
+4. Allow SSH (port 22) in the security group from GitHub's runners. Their addresses change, so this means any address, and the key file is the protection.
+5. Add three GitHub repository secrets:
+
+| Secret | Value |
+|---|---|
+| `EC2_HOST` | the server's public address |
+| `EC2_USER` | `ubuntu` |
+| `EC2_SSH_KEY` | the full contents of the private key file |
+
+After that, every push to `main` that passes the checks deploys itself.
+
+### Settings that connect the parts
 
 | Setting | Where | Value |
 |---|---|---|
 | `VITE_API_BASE_URL` | Cloudflare build variable | the tunnel address, ending in `/api` |
-| `CORS_ORIGINS` | backend `.env` | the Cloudflare site address |
-| `INVITE_CODE` | backend `.env` | the code inside the invitation link `https://<frontend>/?invite=<INVITE_CODE>` |
+| `CORS_ORIGINS` | `.env` on the server | the Cloudflare site address |
+| `INVITE_CODE` | `.env` on the server | the code inside the invitation link `https://<frontend>/?invite=<INVITE_CODE>` |
+| `NGROK_AUTHTOKEN` | `.env` on the server | your ngrok token |
 
 Notes:
 - The frontend sends an `ngrok-skip-browser-warning` header, because ngrok's free warning page would otherwise block api calls.
-- Uploads and chats persist across restarts because `data/` is mounted from the host.
+- Uploads and chats persist across restarts and deploys, because `data/` is mounted from the server's disk.
+- A static ngrok domain allows one tunnel at a time. To run the backend on your own computer instead, stop the server's containers first.
+- The server's public address changes when the instance is stopped and started, unless an Elastic IP is attached. If it changes, update `EC2_HOST`.
 
 Invitation links:
 - Share `https://<frontend>/?invite=<INVITE_CODE>`. There is no login form, so the app cannot be opened without the link
@@ -208,7 +245,8 @@ Token cost: the answer-grading scripts (`evaluation.py`, `final_comparison.py`, 
 ## Future improvements
 
 - Benchmark latency on larger document sets and other document types (so far it is one document), and measure cost in money as well as tokens
-- Host the backend on an always-on server (a VPS with a Docker volume, for example), so the demo does not depend on a personal computer being on
+- Attach an Elastic IP to the server, so its address does not change when the instance restarts
+- Restrict SSH to fewer addresses, for example by deploying through a self-hosted runner or a VPN, instead of leaving port 22 open to every address
 
 ## Author
 
