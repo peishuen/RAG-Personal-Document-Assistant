@@ -57,6 +57,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # run the unit tests inside the image, so they use the same packages as production
+      # they need no api keys, because they never call a model
+      - name: run unit tests
+        run: |
+          docker run --rm \
+            -v "$PWD/tests:/app/tests:ro" \
+            -v "$PWD/requirements-dev.txt:/app/requirements-dev.txt:ro" \
+            querio-backend:ci \
+            sh -c "pip install -q --no-cache-dir -r requirements-dev.txt && python -m pytest tests -q -p no:cacheprovider"
+
       - name: smoke test the container
         run: |
           # start the container with a fake invite code and no api keys

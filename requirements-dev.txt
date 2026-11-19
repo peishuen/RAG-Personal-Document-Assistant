@@ -1,0 +1,2 @@
+# test tools, used by ci and local test runs (not needed in the docker image)
+pytest==8.3.5
