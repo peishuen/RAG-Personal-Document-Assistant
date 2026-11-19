@@ -111,3 +111,13 @@
 - [x] Ignore earlier turns about other files when the file selection changes, so a question about a new document is not rewritten with the old document's context
 - [x] Replace the access key login with an invitation link (`?invite=<code>`), with no login form
 - [ ] Set a long random `INVITE_CODE` in `.env`
+
+## Phase 17: CI/CD and AWS EC2
+
+- [x] Add a `/health` endpoint to the backend
+- [x] Add a GitHub Actions CI workflow that builds the frontend, builds the backend image and smoke tests it
+- [ ] Add key-free unit tests (chunking, text cleaner, rank fusion, citations) and run them in CI
+- [ ] Publish the backend image to GitHub Container Registry on every push to `main`
+- [ ] Create the AWS account (free plan credits) and the EC2 instance
+- [ ] Deploy to EC2 over SSH, with ngrok in a second container, and fail the job if `/health` does not answer
+- [ ] Update the Deployment sections of the README and CLAUDE.md

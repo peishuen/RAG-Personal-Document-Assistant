@@ -99,6 +99,12 @@ def verify_invite(request: Request):
         content={"authenticated": False, "auth_required": True, "detail": "Invalid or missing invitation link"}
     )
 
+# let ci and the docker healthcheck see that the app is running
+# this path is outside /api/, so it needs no invite code
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 # add the routers, each one handles a group of api paths
 app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
 app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
