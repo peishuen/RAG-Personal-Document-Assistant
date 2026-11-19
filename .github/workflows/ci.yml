@@ -1,6 +1,7 @@
-# this file runs the checks on github actions (nothing is deployed to a server yet)
+# this file runs the checks and the deploy on github actions
 # every pull request and every push to main: build the frontend, then build the backend image, test it and smoke test it
 # every push to main also publishes the backend image to the github container registry (ghcr)
+# then it deploys that image to the aws ec2 server over ssh and checks that the public address answers
 name: ci
 
 on:
@@ -16,9 +17,10 @@ permissions:
   contents: read
 
 # cancel an old run on the same branch when a new commit arrives
+# never cancel runs on main, so a publish or deploy is not stopped halfway
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   frontend:
@@ -130,3 +132,62 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
+
+  deploy:
+    name: deploy to ec2
+    # only after the image is published
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      # connect to the server, pull the new image and restart the containers
+      # the server needs a one-time setup first (see the deployment notes in the readme)
+      - name: deploy over ssh
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          # save the ssh key and trust the server address
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+          # run these commands on the server
+          ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" 'bash -s' <<'EOF'
+          set -e
+          cd ~/querio
+          COMPOSE="docker compose -f docker-compose.prod.yml"
+
+          # get the latest compose file, then the latest image
+          git pull --ff-only
+          $COMPOSE pull
+          $COMPOSE up -d --remove-orphans
+
+          # wait up to 2 minutes for the backend health check to pass
+          status=starting
+          for i in $(seq 1 60); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$($COMPOSE ps -q backend)")
+            if [ "$status" = "healthy" ]; then break; fi
+            sleep 2
+          done
+
+          # fail the job and show the logs if the backend never became healthy
+          if [ "$status" != "healthy" ]; then
+            $COMPOSE logs --tail 50
+            exit 1
+          fi
+
+          # remove old images to save disk space
+          docker image prune -f
+          EOF
+
+      # call /health through the public ngrok address, so the tunnel is tested too
+      - name: check the public address
+        run: |
+          # wait up to 2 minutes, because ngrok needs a moment to connect
+          for i in $(seq 1 24); do
+            if curl -fs -H "ngrok-skip-browser-warning: 1" https://clutch-acre-size.ngrok-free.dev/health > /dev/null; then break; fi
+            sleep 5
+          done
+          curl -fs -H "ngrok-skip-browser-warning: 1" https://clutch-acre-size.ngrok-free.dev/health

@@ -1,0 +1,34 @@
+# this file runs the backend and the ngrok tunnel on the aws ec2 server
+# it pulls the ready-made image from ghcr, so the server never builds anything
+# start it with: docker compose -f docker-compose.prod.yml up -d
+services:
+  backend:
+    # the image that the ci publish job pushes on every push to main
+    image: ghcr.io/peishuen/querio-backend:latest
+    # read the secret keys from the .env file on the server
+    env_file: .env
+    # keep uploads, sessions and the vector database on the server, so they survive restarts
+    volumes:
+      - ./data:/app/data
+    # no ports are published, because ngrok reaches the backend over the compose network
+    # check /health from inside the container (the image has no curl, so use python)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    # open the static domain and send the traffic to the backend container
+    command: ["http", "--url=clutch-acre-size.ngrok-free.dev", "backend:8000"]
+    # the ngrok token comes from the .env file on the server
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    # start the tunnel only after the backend is healthy
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
