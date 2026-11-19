@@ -11,7 +11,8 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import numpy as np
-from src.embeddings.embedder import get_dashscope_embedder, get_local_embedder
+# the api embedder is now voyage, the dashscope names below are from the original comparison
+from src.embeddings.embedder import get_embedder as get_dashscope_embedder, get_local_embedder
 
 def cosine_similarity(vec_a, vec_b):
     # measure how close two vectors point in the same direction (1 = identical, 0 = unrelated)

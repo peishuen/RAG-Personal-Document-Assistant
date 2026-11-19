@@ -17,7 +17,7 @@ load_dotenv()
 
 from src.ingestion.pdf_loader import load_pdf
 from src.chunking.chunker import chunk_pages
-from src.embeddings.embedder import generate_embeddings, get_dashscope_embedder
+from src.embeddings.embedder import generate_embeddings, get_embedder
 from src.vectorstore.chroma_store import store_chunks, get_collection
 
 # load and chunk a sample pdf
@@ -34,7 +34,7 @@ collection = store_chunks(chunks)
 print(f'stored in chromadb, collection now has {collection.count()} chunks')
 
 # test the search by embedding a question and finding the closest chunks
-embedder = get_dashscope_embedder()
+embedder = get_embedder()
 query = "What is vehicle-to-vehicle communication used for?"
 query_vector = embedder.embed_query(query)
 

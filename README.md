@@ -26,7 +26,7 @@ The demo opens only from an invitation link, which I share on request. See [Depl
 | Pipeline | LangChain | |
 | Vector store | ChromaDB | cosine similarity |
 | Keyword search | BM25 (`rank_bm25`) | |
-| Embeddings | Qwen via Alibaba DashScope | `qwen3.7-text-embedding` |
+| Embeddings | Voyage AI | `voyage-4` (switched from Qwen `qwen3.7-text-embedding` when its free quota ran out) |
 | LLM | Qwen via DashScope | `qwen3.8-flash` |
 | OCR | Tesseract | used only for pages with no text |
 | Backend | FastAPI | |
@@ -75,12 +75,12 @@ The demo opens only from an invitation link, which I share on request. See [Depl
 
 ## Setup
 
-You need a DashScope API key. Clone the repo, then create a `.env` file in the project root:
+You need a DashScope API key (chat model) and a Voyage AI API key (embeddings). Clone the repo, then create a `.env` file in the project root:
 
 ```
 DASHSCOPE_API_KEY=your-key-here
-DASHSCOPE_HTTP_BASE_URL=https://dashscope-intl.aliyuncs.com/api/v1
 DASHSCOPE_OPENAI_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+VOYAGE_API_KEY=your-key-here
 INVITE_CODE=
 CORS_ORIGINS=
 ```
@@ -88,8 +88,8 @@ CORS_ORIGINS=
 | Variable | Purpose |
 |---|---|
 | `DASHSCOPE_API_KEY` | your DashScope key (required) |
-| `DASHSCOPE_HTTP_BASE_URL` | endpoint for embeddings |
 | `DASHSCOPE_OPENAI_BASE_URL` | endpoint for the language model |
+| `VOYAGE_API_KEY` | your Voyage AI key, for embeddings (required). Without a payment method Voyage allows about 3 requests a minute, so big uploads are slow |
 | `INVITE_CODE` | optional. Leave empty to let anyone open the app. When set, only the invitation link works. Use a long random string |
 | `CORS_ORIGINS` | optional, the frontend addresses allowed to call the api, separated by commas. Leave empty to allow any |
 
@@ -177,6 +177,8 @@ A plain question was already about 5.5 s and is about 5.7 s now. The gains come 
 
 87 labeled questions over 9 documents, each with an exact quote marking where its answer lives. It runs on a separate database, so your own data is never touched.
 
+These numbers were measured with the earlier Qwen embeddings and have not been re-run with Voyage.
+
 | Search (top 5, Qwen embeddings) | Recall@5 | MRR@5 |
 |---|---|---|
 | BM25 | 0.920 | 0.838 |
@@ -201,7 +203,7 @@ python evaluation/final_comparison.py         # original vs tuned, on dev and he
 python evaluation/grounding_eval.py 30        # how well the grounding check catches damaged answers
 ```
 
-Token cost: the answer-grading scripts (`evaluation.py`, `final_comparison.py`, `grounding_eval.py`) use the chat model, roughly 60k to 330k tokens each. The others only embed the questions (a few thousand tokens). `evaluation/embedding_comparison.py` compares DashScope with a local embedding model.
+Token cost: the answer-grading scripts (`evaluation.py`, `final_comparison.py`, `grounding_eval.py`) use the chat model, roughly 60k to 330k tokens each. The others only embed the questions (a few thousand tokens). `evaluation/embedding_comparison.py` compares the api embedding model (now Voyage) with a local one.
 
 ## Future improvements
 

@@ -4,11 +4,11 @@ It turns the question into an embedding with the same model used for the chunks,
 then looks for the chunks whose embeddings are closest to it.
 """
 
-from src.embeddings.embedder import get_dashscope_embedder
+from src.embeddings.embedder import get_embedder
 from src.vectorstore.chroma_store import get_collection
 
 def semantic_search(query: str, collection_name: str = "documents", top_k: int = 5, sources: list[str] | None = None) -> list[dict]:
-    embedder = get_dashscope_embedder()
+    embedder = get_embedder()
     collection = get_collection(collection_name)
 
     # embed the question the same way as the chunks, so they can be compared

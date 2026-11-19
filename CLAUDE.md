@@ -40,14 +40,15 @@ If `docker` is not on PATH in a shell, use `"C:\Program Files\Docker\Docker\reso
 - Frontend: Cloudflare, built from `frontend/` on every push to `main` (config in `frontend/wrangler.jsonc`, build variable `VITE_API_BASE_URL`)
 - Backend: runs on the user's own computer in Docker, with `data/` mounted from the host
 - Tunnel: ngrok static domain. The frontend sends `ngrok-skip-browser-warning` on every api call, so keep that header
-- `.env` holds `DASHSCOPE_*`, `INVITE_CODE` and `CORS_ORIGINS`. Never print, commit or paste their values
+- `.env` holds `DASHSCOPE_*`, `VOYAGE_API_KEY`, `INVITE_CODE` and `CORS_ORIGINS`. Never print, commit or paste their values
 - Access is by invitation link only (`?invite=<INVITE_CODE>`, sent as the `X-Invite-Code` header). There is no login form or typed access key. Do not add one back
 - Render, Streamlit and `app.py` were removed. Do not add them back
 
 ## Decisions to keep
 
-- No reranker. Retrieval is BM25 + Qwen embeddings with rank fusion only. Do not add a reranker or local model fallback unless the user asks
-- DashScope quota is 1M tokens per model (embedding and chat). Check usage before big evaluation runs. Answer-grading scripts (`evaluation.py`, `final_comparison.py`, `grounding_eval.py`) use 60k to 330k chat tokens each
+- No reranker. Retrieval is BM25 + Voyage `voyage-4` embeddings with rank fusion only. Do not add a reranker or local model fallback unless the user asks
+- Embeddings use Voyage AI (`VOYAGE_API_KEY`), because the DashScope embedding free quota ran out. Without a payment method Voyage allows about 3 requests and 10k tokens a minute, so `embedder.py` batches 24 chunks per request and waits on rate limits. After changing the embedding model, re-embed with `testing/reembed_db.py`
+- DashScope (chat model only now) quota is 1M tokens per model. Check usage before big evaluation runs. Answer-grading scripts (`evaluation.py`, `final_comparison.py`, `grounding_eval.py`) use 60k to 330k chat tokens each
 - Chat history used for rewriting and answering only includes turns asked with the same file selection (`_same_scope_history` in `backend/routers/chat.py`)
 
 ## How to work

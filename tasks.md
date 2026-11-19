@@ -111,6 +111,7 @@
 - [x] Ignore earlier turns about other files when the file selection changes, so a question about a new document is not rewritten with the old document's context
 - [x] Replace the access key login with an invitation link (`?invite=<code>`), with no login form
 - [ ] Set a long random `INVITE_CODE` in `.env`
+- [x] Switch embeddings from DashScope to Voyage AI (`voyage-4`) after the DashScope embedding free quota ran out, and re-embed the app and seed databases
 
 ## Phase 17: CI/CD and AWS EC2
 

@@ -2,8 +2,11 @@
 langchain==0.3.25
 langchain-community==0.3.24
 
-# qwen llm and embeddings via dashscope
+# qwen llm via dashscope
 dashscope==1.20.11
+
+# embeddings via voyage ai, because the dashscope embedding quota ran out
+voyageai==0.6.0
 
 # openai-compatible client, needed for qwen3.8-max which only works through the
 # openai-compatible route on the dedicated workspace endpoint

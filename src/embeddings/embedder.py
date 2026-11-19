@@ -1,40 +1,67 @@
 """
 This file turns chunk text into embeddings (lists of numbers that capture meaning).
 Similar text gets similar numbers, which lets us search by meaning.
-It uses qwen's embedding model through dashscope, and also has a local
+It uses voyage ai's embedding model, and also has a local
 model option that needs no api key.
 """
 
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
-import dashscope
-from langchain_community.embeddings import DashScopeEmbeddings
+import voyageai
 from langchain_huggingface import HuggingFaceEmbeddings
 
-def get_dashscope_embedder():
-    # point dashscope at the international endpoint
-    dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
-    dashscope.base_http_api_url = os.getenv("DASHSCOPE_HTTP_BASE_URL")
+# use voyage-4, because the dashscope embedding models ran out of free quota
+EMBED_MODEL = "voyage-4"
 
-    # use qwen3.7-text-embedding because it still has free quota on this account
-    return DashScopeEmbeddings(
-        model="qwen3.7-text-embedding",
-        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY")
-    )
+# wait this long after a rate limit error, because a free voyage account allows about 3 requests a minute
+RATE_LIMIT_WAIT_SECONDS = 25
+RATE_LIMIT_RETRIES = 5
+
+
+class VoyageEmbedder:
+    # match the two methods of a langchain embedder, so the rest of the code does not change
+
+    def __init__(self, model: str = EMBED_MODEL):
+        self.model = model
+        self.client = voyageai.Client(api_key=os.getenv("VOYAGE_API_KEY"))
+
+    def _embed(self, texts: list[str], input_type: str) -> list[list[float]]:
+        # retry after a pause when voyage says we are sending too fast
+        for attempt in range(RATE_LIMIT_RETRIES):
+            try:
+                return self.client.embed(texts, model=self.model, input_type=input_type).embeddings
+            except voyageai.error.RateLimitError:
+                if attempt == RATE_LIMIT_RETRIES - 1:
+                    raise
+                time.sleep(RATE_LIMIT_WAIT_SECONDS)
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        # tell voyage these are chunks to be searched
+        return self._embed(texts, "document")
+
+    def embed_query(self, text: str) -> list[float]:
+        # tell voyage this is a question, which matches it better to the chunks
+        return self._embed([text], "query")[0]
+
+
+def get_embedder():
+    # create the main embedding model (voyage)
+    return VoyageEmbedder()
 
 def get_local_embedder():
     # run the model on this machine, so no api key or cost is needed
     return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# send at most 20 texts per request, because the model rejects bigger requests
-EMBED_BATCH_SIZE = 20
+# send up to 24 texts per request, so one request stays under the free limit of 10k tokens a minute
+# (chunks are at most 800 characters, about 270 tokens)
+EMBED_BATCH_SIZE = 24
 
-# send up to 4 requests at the same time, because most of the time is spent waiting for the network
-EMBED_WORKERS = 4
+# send one request at a time, because the free voyage limit is only a few requests a minute
+EMBED_WORKERS = 1
 
 def embed_batch(embedder, batch: list[str]) -> list[list[float]]:
-    # try a batch twice, because a busy api can reject a request when several arrive together
+    # try a batch twice, because a busy api can reject a request now and then
     try:
         return embedder.embed_documents(batch)
     except Exception:
@@ -42,16 +69,16 @@ def embed_batch(embedder, batch: list[str]) -> list[list[float]]:
         return embedder.embed_documents(batch)
 
 def generate_embeddings(chunks: list[dict]) -> list[dict]:
-    # create the main embedding model (dashscope)
-    embedder = get_dashscope_embedder()
+    # create the main embedding model
+    embedder = get_embedder()
 
     # get the text of every chunk
     texts = [chunk["text"] for chunk in chunks]
 
-    # split the texts into small batches to stay under the limit
+    # split the texts into batches to stay under the limit
     batches = [texts[i:i + EMBED_BATCH_SIZE] for i in range(0, len(texts), EMBED_BATCH_SIZE)]
 
-    # embed the batches at the same time, and keep them in the original order
+    # embed the batches and keep them in the original order
     with ThreadPoolExecutor(max_workers=EMBED_WORKERS) as executor:
         batch_vectors = list(executor.map(lambda batch: embed_batch(embedder, batch), batches))
 
