@@ -1,5 +1,6 @@
-# this file runs the checks on github actions (ci only, nothing is deployed yet)
-# every pull request and every push to main: build the frontend, then build the backend image and smoke test it
+# this file runs the checks on github actions (nothing is deployed to a server yet)
+# every pull request and every push to main: build the frontend, then build the backend image, test it and smoke test it
+# every push to main also publishes the backend image to the github container registry (ghcr)
 name: ci
 
 on:
@@ -88,3 +89,44 @@ jobs:
       - name: show the container logs
         if: failure()
         run: docker logs querio
+
+  publish:
+    name: publish backend image
+    # only after the frontend build and the backend tests pass
+    needs: [frontend, backend]
+    # only on a push to main, never on pull requests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # this job needs write access to the container registry
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # log in to ghcr with the built-in token, so no extra secret is needed
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # make the image name and tags (the name is turned into lowercase, which ghcr needs)
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/querio-backend
+          tags: |
+            type=raw,value=latest
+            type=sha
+
+      # build again from the same cache and push the image
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
